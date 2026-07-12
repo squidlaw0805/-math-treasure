@@ -353,6 +353,8 @@
     animation: glowPulse 1.4s ease-in-out infinite;
   }
   #passBadge small { display: block; margin-top: 6px; font-size: clamp(15px, 3.2vw, 19px); font-weight: 700; color: #ffd; letter-spacing: 1px; }
+  #modeTag { display: block; margin-top: 4px; font-size: clamp(14px, 3vw, 17px); font-weight: 800; color: #9fdcff; }
+  #modeTag:empty { display: none; }
   @keyframes glowPulse { 0%,100% { box-shadow: 0 0 12px rgba(255,215,90,.25); } 50% { box-shadow: 0 0 34px rgba(255,215,90,.65); } }
 
   #result .actions { display: flex; flex-direction: column; gap: 14px; width: min(560px, 100%); }
@@ -371,8 +373,9 @@
     <div class="home-btns">
       <button class="btn gold" onclick="showScreen('tutorial')">📜 先看秘笈教學</button>
       <button class="btn ghost" onclick="startGame()">⚡ 直接開始挑戰</button>
+      <button class="btn ghost" onclick="startGame('kid')">🐣 小尋寶者入門（2 題）</button>
     </div>
-    <div class="ver">v3.2</div>
+    <div class="ver">v3.3</div>
   </section>
 
   <!-- ========== 教學（三張卡片上下直排，往下滑動觀看） ========== -->
@@ -503,7 +506,7 @@
     <div id="resultTitle">寶箱開啟！</div>
     <div id="resultStats"></div>
     <div id="reviewList"></div>
-    <div id="passBadge">✅ 挑戰成功<small>請向關主出示此畫面，蓋章過關 🖐️</small></div>
+    <div id="passBadge">✅ 挑戰成功<span id="modeTag"></span><small>請向關主出示此畫面，蓋章過關 🖐️</small></div>
     <div class="actions">
       <button class="btn gold" id="retryBtn" onclick="startGame()">💪 立刻再挑戰一次</button>
       <button class="btn ghost" onclick="showScreen('home')">🏠 完成，換下一位</button>
@@ -567,7 +570,8 @@
 <script>
 "use strict";
 const TIME_LIMIT = 180;   // 尋寶解密限時（秒）
-const TOTAL_Q = 3;
+let TOTAL_Q = 3;          // 正式版 3 題；小尋寶者版 2 題
+let gameMode = "full";    // full = 正式尋寶者；kid = 小尋寶者（國小／親子入門）
 
 let questions = [], qIndex = 0, solved = 0;
 let inputBuf = "";                 // 第二階段（相加型）的密碼輸入
@@ -661,8 +665,18 @@ function genEleven() {
 }
 
 // 三種題型各一題，順序完全隨機打亂（Fisher–Yates）
-function genQuestions() {
-  const gens = [genHeadSame, genTeens, genEleven];
+// 小尋寶者版的 ×11：只出「中間不進位」題（a＋b < 10），降低入門門檻
+function genElevenEasy() {
+  let q;
+  do { q = genEleven(); } while (q.carry);
+  return q;
+}
+
+function genQuestions(mode) {
+  // 正式版：三招各 1 題；小尋寶者版：×11（不進位）＋秘技一或二擇一，共 2 題
+  const gens = mode === "kid"
+    ? [genElevenEasy, rnd(2) ? genHeadSame : genTeens]
+    : [genHeadSame, genTeens, genEleven];
   for (let i = gens.length - 1; i > 0; i--) {
     const j = rnd(i + 1);
     [gens[i], gens[j]] = [gens[j], gens[i]];
@@ -676,8 +690,10 @@ function genQuestions() {
 }
 
 /* ---------- 遊戲流程 ---------- */
-function startGame() {
-  questions = genQuestions();
+function startGame(mode) {
+  gameMode = mode === "kid" ? "kid" : "full";
+  TOTAL_Q = gameMode === "kid" ? 2 : 3;
+  questions = genQuestions(gameMode);
   qIndex = 0; solved = 0; inputBuf = "";
   usedSec = 0; uiLock = false; gameOver = false;
   closeHint();
@@ -1265,6 +1281,7 @@ function showResult(unlocked) {
     spark.textContent = "✨ ⭐ ✨ ⭐ ✨";
     title.textContent = "寶箱開啟成功！";
     stats.innerHTML = `密碼全數破解 <b style="color:#24e6a0">${solved} / ${TOTAL_Q}</b>　⏱️ 耗時 <b style="color:#ffe27a">${usedSec}</b> 秒`;
+    document.getElementById("modeTag").textContent = gameMode === "kid" ? "🐣 小尋寶者版（2 題）" : "";
     badge.style.display = "block";
     retry.style.display = "none";
   } else {
