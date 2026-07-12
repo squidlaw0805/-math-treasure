@@ -1,0 +1,16 @@
+{
+  "name": "數學速解尋寶記",
+  "short_name": "速解尋寶記",
+  "description": "限時 180 秒破解三道密碼鎖——兩位數乘法速算闖關遊戲",
+  "lang": "zh-Hant",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#081526",
+  "theme_color": "#081526",
+  "icons": [
+    { "src": "./apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

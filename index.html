@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>數學速解尋寶記 🗺️</title>
+<!-- PWA：加入主畫面後全螢幕執行、離線可玩 -->
+<meta name="theme-color" content="#081526">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="速解尋寶記">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="manifest" href="./manifest.json">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-touch-callout: none; }
+  button { touch-action: manipulation; }   /* 消除平板點擊延遲與雙擊縮放 */
+  html, body { height: 100%; }
+  body {
+    font-family: "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
+    background: radial-gradient(ellipse at 50% 0%, #0e2a4a 0%, #081526 60%, #050b14 100%);
+    color: #e8f4ff;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  /* 背景科技網格 */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,229,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,.06) 1px, transparent 1px);
+    background-size: 46px 46px;
+  }
+  #app {
+    width: min(760px, 100vw); height: min(1000px, 100vh);
+    padding: 18px; display: flex; flex-direction: column; position: relative; z-index: 1;
+  }
+  .screen { display: none; flex: 1; flex-direction: column; animation: fadeIn .35s ease; }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  h1.logo {
+    text-align: center; font-size: clamp(34px, 7vw, 52px); letter-spacing: 4px;
+    background: linear-gradient(180deg, #ffe27a, #ffb340);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 14px rgba(255,196,60,.45));
+    margin: 10px 0 4px;
+  }
+  .subtitle { text-align: center; color: #7fd8ff; font-size: clamp(16px, 3vw, 22px); letter-spacing: 6px; margin-bottom: 8px; }
+
+  .btn {
+    border: none; cursor: pointer; font-family: inherit; color: #06263f;
+    font-size: clamp(22px, 4.5vw, 30px); font-weight: 800; letter-spacing: 2px;
+    padding: 20px 26px; border-radius: 18px; min-height: 70px; width: 100%;
+    background: linear-gradient(180deg, #6fe7ff, #17b4e8);
+    box-shadow: 0 6px 0 #0d7ba3, 0 0 22px rgba(0,200,255,.35);
+    transition: transform .08s, box-shadow .08s;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #0d7ba3; }
+  .btn.gold {
+    color: #4a2c00;
+    background: linear-gradient(180deg, #ffe27a, #ffb340);
+    box-shadow: 0 6px 0 #b06f10, 0 0 22px rgba(255,190,60,.4);
+  }
+  .btn.gold:active { box-shadow: 0 2px 0 #b06f10; }
+  .btn.ghost {
+    color: #9fdcff; background: rgba(20,60,95,.55);
+    border: 2px solid rgba(0,200,255,.45); box-shadow: none;
+  }
+
+  .card {
+    background: linear-gradient(180deg, rgba(16,48,80,.85), rgba(10,30,54,.9));
+    border: 2px solid rgba(0,200,255,.35); border-radius: 20px;
+    padding: 18px 20px; box-shadow: 0 0 26px rgba(0,150,255,.15) inset, 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  /* ===== 首頁 ===== */
+  #home .chest-hero { text-align: center; font-size: clamp(90px, 22vw, 150px); margin: 20px 0; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 24px rgba(255,200,80,.35)); }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+  #home .home-btns { display: flex; flex-direction: column; gap: 18px; margin-top: auto; margin-bottom: 10px; }
+  .home-desc { text-align: center; color: #b8dcf5; font-size: clamp(16px, 3.2vw, 21px); line-height: 1.7; }
+  .home-desc b { color: #ffe27a; }
+  .ver { text-align: center; color: rgba(130,160,190,.3); font-size: 13px; padding-bottom: 4px; }
+
+  /* ===== 教學（三張卡片直向排列、往下滑動） ===== */
+  #tutorial { gap: 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+  .tut-title { text-align: center; font-size: clamp(24px, 5vw, 32px); color: #ffe27a; margin: 6px 0; flex-shrink: 0; }
+  .tut-hint { text-align: center; color: #8fb8d8; font-size: clamp(14px, 3vw, 18px); margin-top: -8px; flex-shrink: 0; }
+  .tut-card { flex-shrink: 0; }
+  .tut-card h3 { font-size: clamp(20px, 4vw, 26px); color: #7fd8ff; margin-bottom: 4px; }
+  .tut-cond { font-size: clamp(15px, 3.2vw, 19px); color: #b8dcf5; margin-bottom: 10px; }
+  .sec-label {
+    display: inline-block; font-size: clamp(14px, 3vw, 17px); font-weight: 800; letter-spacing: 2px;
+    color: #06263f; background: linear-gradient(180deg, #6fe7ff, #2cc2ef);
+    border-radius: 999px; padding: 4px 14px; margin: 8px 0 6px;
+  }
+  .sec-label.gold { background: linear-gradient(180deg, #ffe27a, #ffb340); color: #4a2c00; }
+  .tut-derive {
+    background: rgba(4,16,30,.65); border: 1px solid rgba(0,200,255,.25); border-radius: 14px;
+    padding: 12px 14px; font-size: clamp(17px, 3.6vw, 23px); font-weight: 700;
+    line-height: 2.0; letter-spacing: 1px; overflow-x: auto; white-space: nowrap;
+  }
+  .tut-derive .lead { font-size: clamp(20px, 4.4vw, 28px); }
+  .tut-steps { font-size: clamp(16px, 3.4vw, 21px); line-height: 1.9; color: #dceeff; }
+  .rd { color: #ff6b6b; font-weight: 800; }   /* 紅：頭（十位） */
+  .bl { color: #59a8ff; font-weight: 800; }   /* 藍：尾（個位） */
+  .gd { color: #ffd75e; font-weight: 800; }   /* 金：答案 */
+  .tut-tip { margin-top: 6px; font-size: clamp(14px, 3vw, 18px); color: #8fb8d8; }
+  #tutorial .btn { margin-top: 4px; flex-shrink: 0; }
+
+  /* ===== 遊戲 ===== */
+  .hud { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .hud .pill {
+    background: rgba(10,35,60,.8); border: 2px solid rgba(0,200,255,.4); border-radius: 999px;
+    padding: 8px 16px; font-size: clamp(17px, 3.4vw, 24px); font-weight: 800; color: #9fe4ff;
+    white-space: nowrap;
+  }
+  .hud .hint-btn {
+    border: 2px solid rgba(255,215,90,.55); background: rgba(60,45,10,.6);
+    color: #ffe27a; border-radius: 999px; padding: 8px 16px; cursor: pointer;
+    font-family: inherit; font-size: clamp(17px, 3.4vw, 24px); font-weight: 800; white-space: nowrap;
+  }
+  .hud .hint-btn:active { transform: translateY(2px); }
+  #timerPill.warn { color: #ff6b6b; border-color: #ff6b6b; animation: blink .6s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .45; } }
+  .timebar-wrap { height: 12px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; margin-bottom: 12px; border: 1px solid rgba(0,200,255,.3); }
+  #timebar { height: 100%; width: 100%; background: linear-gradient(90deg, #24e6a0, #6fe7ff); transition: width .25s linear; border-radius: 999px; }
+
+  .chest-zone { text-align: center; margin: 4px 0; }
+  #chestIcon { font-size: clamp(56px, 13vw, 84px); display: inline-block; transition: transform .2s; }
+  #chestIcon.shake { animation: shake .45s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-12px)} 40%{transform:translateX(12px)} 60%{transform:translateX(-8px)} 80%{transform:translateX(8px)} }
+  .locks { font-size: clamp(24px, 5vw, 34px); letter-spacing: 10px; margin-top: 2px; }
+
+  .question-box { text-align: center; margin: 8px 0 4px; }
+  #questionText { font-size: clamp(44px, 11vw, 72px); font-weight: 900; letter-spacing: 3px; color: #ffffff; text-shadow: 0 0 18px rgba(0,200,255,.55); }
+  .code-display {
+    margin: 12px auto; display: flex; justify-content: center; gap: 12px;
+  }
+  .code-slot {
+    width: clamp(52px, 12vw, 70px); height: clamp(64px, 14vw, 84px);
+    border: 3px solid rgba(0,220,255,.55); border-radius: 14px;
+    background: rgba(5,20,38,.85); display: flex; align-items: center; justify-content: center;
+    font-size: clamp(32px, 8vw, 48px); font-weight: 900; color: #ffe27a;
+    box-shadow: 0 0 14px rgba(0,200,255,.25) inset;
+  }
+  .code-slot.filled { border-color: #ffe27a; box-shadow: 0 0 16px rgba(255,215,90,.35); }
+  #feedback { text-align: center; min-height: 34px; font-size: clamp(16px, 3.6vw, 22px); font-weight: 800; color: #8fb8d8; }
+  #feedback.ok { color: #24e6a0; } #feedback.no { color: #ff6b6b; }
+
+  /* ===== 兩段式密碼輸入（依口訣拆成前段／後段，確保玩家使用速算法） ===== */
+  #segArea { margin: 6px 0 2px; }
+  .seg-row { display: flex; justify-content: center; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .seg-group {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 8px 8px 6px; border-radius: 16px; border: 2px dashed rgba(255,255,255,.14);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .seg-group.active.sg-front { border-color: #ff6b6b; box-shadow: 0 0 16px rgba(255,107,107,.25); }
+  .seg-group.active.sg-back  { border-color: #59a8ff; box-shadow: 0 0 16px rgba(89,168,255,.25); }
+  .seg-group.active.sg-sum   { border-color: #ffe27a; box-shadow: 0 0 16px rgba(255,215,90,.3); }
+  .seg-slots { display: flex; gap: 8px; }
+  .code-slot.seg { width: clamp(42px, 9vw, 58px); height: clamp(54px, 11vw, 70px); font-size: clamp(26px, 6vw, 40px); color: #e8f4ff; }
+  .code-slot.seg.filled.f-rd { border-color: #ff6b6b; color: #ff9d9d; box-shadow: 0 0 12px rgba(255,107,107,.3); }
+  .code-slot.seg.filled.f-bl { border-color: #59a8ff; color: #9fc9ff; box-shadow: 0 0 12px rgba(89,168,255,.3); }
+  .code-slot.seg.filled.f-gd { border-color: #ffe27a; color: #ffe27a; box-shadow: 0 0 12px rgba(255,215,90,.3); }
+  .seg-tag { font-size: clamp(12px, 2.7vw, 15px); font-weight: 800; color: #8fb8d8; max-width: 250px; text-align: center; line-height: 1.4; }
+  .seg-tag.rd { color: #ff9d9d; } .seg-tag.bl { color: #9fc9ff; } .seg-tag.gd { color: #ffe27a; }
+  .seg-sym { font-size: clamp(24px, 5.5vw, 36px); font-weight: 900; color: #9fdcff; align-self: center; padding-top: 14px; }
+  .seg-recap { text-align: center; font-size: clamp(24px, 5.5vw, 36px); font-weight: 900; margin-bottom: 8px; color: #dceeff; }
+  .seg-recap .rd { color: #ff6b6b; } .seg-recap .bl { color: #59a8ff; }
+
+  /* ===== 失敗結算的逐題回饋卡 ===== */
+  #reviewList { display: none; width: min(560px, 100%); flex-direction: column; gap: 8px; text-align: left; }
+  .rv-item {
+    background: rgba(10,35,60,.7); border: 1px solid rgba(0,200,255,.3); border-radius: 12px;
+    padding: 10px 14px; font-size: clamp(14px, 3.1vw, 18px); line-height: 1.75; color: #dceeff;
+  }
+  .rv-item.ok { border-color: rgba(36,230,160,.45); }
+  .rv-item.no { border-color: rgba(255,107,107,.5); }
+  .rv-item b { color: #ffe27a; }
+  .rv-item .tech { color: #7fd8ff; font-weight: 800; }
+
+  .keypad {
+    margin-top: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-bottom: 8px;
+  }
+  .key {
+    border: none; cursor: pointer; font-family: inherit; border-radius: 16px;
+    font-size: clamp(28px, 6.5vw, 40px); font-weight: 800; min-height: clamp(64px, 11vh, 88px);
+    color: #e8f4ff; background: linear-gradient(180deg, #1b4a75, #123353);
+    border: 2px solid rgba(0,200,255,.35); box-shadow: 0 5px 0 #0a2440;
+    transition: transform .06s, box-shadow .06s;
+  }
+  .key:active { transform: translateY(4px); box-shadow: 0 1px 0 #0a2440; }
+  .key.act-del { color: #ffb0b0; background: linear-gradient(180deg, #6e2436, #4a1824); border-color: rgba(255,110,110,.45); box-shadow: 0 5px 0 #35101a; }
+  .key.act-ok  { color: #06263f; background: linear-gradient(180deg, #35eebc, #14c896); border-color: rgba(70,255,200,.5); box-shadow: 0 5px 0 #0a7a5a; }
+
+  /* ===== 速算小抄（遊戲中可開，計時不暫停） ===== */
+  #hintOverlay {
+    display: none; position: fixed; inset: 0; z-index: 20;
+    background: rgba(3,10,20,.88); backdrop-filter: blur(3px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  #hintOverlay.show { display: flex; }
+  .hint-panel {
+    width: min(640px, 100%); max-height: 90vh; overflow-y: auto;
+    background: linear-gradient(180deg, rgba(18,52,86,.97), rgba(10,30,54,.97));
+    border: 2px solid rgba(255,215,90,.5); border-radius: 20px; padding: 20px 22px;
+    box-shadow: 0 0 40px rgba(255,200,80,.2);
+  }
+  .hint-panel h3 { color: #ffe27a; text-align: center; font-size: clamp(22px, 5vw, 28px); margin-bottom: 4px; }
+  .hint-warn { text-align: center; color: #ff9d9d; font-size: clamp(14px, 3vw, 17px); margin-bottom: 12px; }
+  .hint-item {
+    background: rgba(4,16,30,.6); border: 1px solid rgba(0,200,255,.25); border-radius: 14px;
+    padding: 12px 14px; margin-bottom: 10px; font-size: clamp(15px, 3.4vw, 20px); line-height: 1.9;
+  }
+  .hint-item b { color: #7fd8ff; }
+  .hint-panel .btn { margin-top: 6px; min-height: 58px; padding: 14px; }
+
+  /* ===== 口訣動畫（秘技卡片內的「🎬 動畫示範」） ===== */
+  .anim-btn {
+    display: block; width: 100%; margin-top: 10px; cursor: pointer; font-family: inherit;
+    border: 2px solid rgba(255,215,90,.55); background: rgba(60,45,10,.55); color: #ffe27a;
+    border-radius: 14px; padding: 12px 14px; min-height: 54px;
+    font-size: clamp(16px, 3.4vw, 21px); font-weight: 800; letter-spacing: 1px;
+    transition: transform .08s;
+  }
+  .anim-btn:active { transform: translateY(3px); }
+
+  #animOverlay {
+    display: none; position: fixed; inset: 0; z-index: 30;
+    background: rgba(3,10,20,.92); backdrop-filter: blur(3px);
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  #animOverlay.show { display: flex; }
+  .anim-panel {
+    width: min(680px, 100%); max-height: 94vh; overflow-y: auto;
+    background: linear-gradient(180deg, rgba(18,52,86,.97), rgba(10,30,54,.97));
+    border: 2px solid rgba(255,215,90,.5); border-radius: 20px; padding: 18px 18px 16px;
+    box-shadow: 0 0 40px rgba(255,200,80,.2);
+  }
+  .anim-panel h3 { color: #ffe27a; text-align: center; font-size: clamp(20px, 4.6vw, 27px); margin-bottom: 2px; }
+  .anim-ex { text-align: center; color: #8fb8d8; font-size: clamp(14px, 3vw, 18px); margin-bottom: 8px; letter-spacing: 1px; }
+
+  .anim-stage {
+    background: rgba(4,16,30,.7); border: 1px solid rgba(0,200,255,.25); border-radius: 16px;
+    padding: 14px 12px; min-height: 340px; position: relative;
+  }
+  /* 算式數字 */
+  .anim-expr { display: flex; justify-content: center; align-items: center; gap: 4px; margin: 6px 0 12px; }
+  .anim-expr .dg {
+    font-size: clamp(36px, 9vw, 56px); font-weight: 900; color: #ffffff;
+    padding: 2px 6px; border-radius: 10px; transition: color .35s, transform .35s, text-shadow .35s, background .35s;
+  }
+  .anim-expr .op { font-size: clamp(28px, 6vw, 40px); font-weight: 900; color: #9fdcff; margin: 0 10px; }
+  .anim-expr .dg.hi-rd { color: #ff6b6b; background: rgba(255,107,107,.14); transform: translateY(-6px) scale(1.12); text-shadow: 0 0 16px rgba(255,107,107,.7); }
+  .anim-expr .dg.hi-bl { color: #59a8ff; background: rgba(89,168,255,.14); transform: translateY(6px) scale(1.12); text-shadow: 0 0 16px rgba(89,168,255,.7); }
+
+  /* 條件檢查 */
+  .anim-checks { min-height: 62px; }
+  .anim-line {
+    opacity: 0; transform: translateY(8px);
+    transition: opacity .4s ease, transform .4s ease;
+    font-size: clamp(15px, 3.3vw, 20px); font-weight: 700; line-height: 1.8; text-align: center; color: #dceeff;
+  }
+  .anim-line.show { opacity: 1; transform: none; }
+
+  /* 步驟 */
+  .anim-steps { margin-top: 6px; min-height: 76px; }
+  .anim-step {
+    opacity: 0; transform: translateX(-14px);
+    transition: opacity .4s ease, transform .4s ease;
+    font-size: clamp(15px, 3.3vw, 20px); font-weight: 700; line-height: 1.9; color: #dceeff; text-align: center;
+  }
+  .anim-step.show { opacity: 1; transform: none; }
+
+  /* 前段／後段 → 拼接 */
+  .anim-slots { display: flex; justify-content: center; align-items: center; gap: 14px; margin: 12px 0 6px; min-height: 92px; }
+  .anim-slot {
+    min-width: clamp(84px, 22vw, 120px); height: clamp(64px, 15vw, 84px);
+    border: 3px dashed rgba(0,220,255,.4); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(30px, 7vw, 44px); font-weight: 900; color: rgba(255,255,255,.18);
+    background: rgba(5,20,38,.6);
+    transition: all .45s cubic-bezier(.2,1.4,.4,1);
+  }
+  .anim-slot .sub { display: block; }
+  .anim-slot.fill-rd { border: 3px solid #ff6b6b; color: #ff6b6b; box-shadow: 0 0 18px rgba(255,107,107,.35); transform: scale(1.08); }
+  .anim-slot.fill-bl { border: 3px solid #59a8ff; color: #59a8ff; box-shadow: 0 0 18px rgba(89,168,255,.35); transform: scale(1.08); }
+  .anim-slot.merge { gap: 0; }
+  .anim-slot-tag { text-align: center; color: #7fa8c8; font-size: clamp(12px, 2.6vw, 15px); font-weight: 700; margin-top: 4px; }
+  .anim-slot-wrap { display: flex; flex-direction: column; }
+  .anim-plus { font-size: clamp(26px, 6vw, 38px); font-weight: 900; color: #9fdcff; opacity: 0; transition: opacity .3s; }
+  .anim-plus.show { opacity: 1; }
+
+  .anim-answer {
+    text-align: center; margin-top: 6px; min-height: 74px;
+    font-size: clamp(38px, 10vw, 62px); font-weight: 900; color: #ffd75e;
+    opacity: 0; transform: scale(.5);
+    transition: opacity .35s, transform .55s cubic-bezier(.2,1.7,.4,1);
+    text-shadow: 0 0 26px rgba(255,215,90,.6);
+  }
+  .anim-answer.show { opacity: 1; transform: scale(1); }
+  .anim-note {
+    text-align: center; color: #ffb0b0; font-weight: 800; min-height: 30px;
+    font-size: clamp(14px, 3.1vw, 19px);
+    opacity: 0; transition: opacity .4s;
+  }
+  .anim-note.show { opacity: 1; }
+
+  .anim-mantra {
+    margin-top: 10px; text-align: center; color: #ffe27a; font-weight: 800;
+    font-size: clamp(15px, 3.3vw, 20px); line-height: 1.8;
+    opacity: 0; transition: opacity .5s;
+  }
+  .anim-mantra.show { opacity: 1; }
+  /* 範例之間的轉場字卡 */
+  .anim-bridge {
+    position: absolute; inset: 0; z-index: 2;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    background: rgba(4,16,30,.93); border-radius: 16px;
+    font-size: clamp(20px, 4.6vw, 28px); font-weight: 900; color: #ffe27a; line-height: 1.7; padding: 20px;
+    opacity: 0; pointer-events: none; transition: opacity .45s;
+  }
+  .anim-bridge.show { opacity: 1; animation: bridgePulse 1.1s ease-in-out infinite; }
+  @keyframes bridgePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+
+  .anim-ctrl { display: flex; gap: 10px; margin-top: 12px; }
+  .anim-ctrl .btn { min-height: 56px; padding: 12px; font-size: clamp(17px, 3.6vw, 23px); }
+  .anim-ctrl .btn:disabled {
+    opacity: .32; box-shadow: none; cursor: default; pointer-events: none;
+    filter: grayscale(.4);
+  }
+
+  /* ===== 結算 ===== */
+  #result { align-items: center; text-align: center; gap: 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #result::before, #result::after { content: ""; margin: auto; }   /* 內容少時置中、多時可捲動不裁切 */
+  #resultChest { font-size: clamp(90px, 24vw, 160px); }
+  #resultChest.open { animation: pop .8s cubic-bezier(.2,1.6,.4,1); filter: drop-shadow(0 0 30px rgba(255,210,90,.8)); }
+  @keyframes pop { 0% { transform: scale(.3) rotate(-14deg); } 55% { transform: scale(1.25) rotate(6deg); } 100% { transform: scale(1); } }
+  .sparkles { font-size: clamp(30px, 7vw, 46px); letter-spacing: 8px; height: 50px; }
+  #resultTitle { font-size: clamp(30px, 7vw, 44px); font-weight: 900; color: #ffe27a; }
+  #resultStats { font-size: clamp(20px, 4.4vw, 28px); color: #bfe6ff; line-height: 1.8; }
+
+  /* 過關證明：給關主看的蓋章憑證 */
+  #passBadge {
+    display: none; width: min(560px, 100%); padding: 18px 20px; border-radius: 20px;
+    border: 3px dashed #ffe27a; background: rgba(70,52,10,.35);
+    font-size: clamp(20px, 4.6vw, 28px); font-weight: 900; color: #ffe27a; letter-spacing: 2px;
+    animation: glowPulse 1.4s ease-in-out infinite;
+  }
+  #passBadge small { display: block; margin-top: 6px; font-size: clamp(15px, 3.2vw, 19px); font-weight: 700; color: #ffd; letter-spacing: 1px; }
+  @keyframes glowPulse { 0%,100% { box-shadow: 0 0 12px rgba(255,215,90,.25); } 50% { box-shadow: 0 0 34px rgba(255,215,90,.65); } }
+
+  #result .actions { display: flex; flex-direction: column; gap: 14px; width: min(560px, 100%); }
+  #retryBtn { display: none; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ========== 首頁 ========== -->
+  <section id="home" class="screen active">
+    <h1 class="logo">數學速解尋寶記</h1>
+    <div class="subtitle">🛰️ MATH TREASURE HUNT 🛰️</div>
+    <div class="chest-hero">🗝️📦</div>
+    <p class="home-desc">學會三招速算秘技，⏱️ 180 秒內<br><b>3 道密碼全部破解</b>，才能打開寶箱過關！<br>密碼要照口訣拆成 <b>前段＋後段</b> 輸入喔<br>失敗了沒關係，可以馬上再挑戰 💪</p>
+    <div class="home-btns">
+      <button class="btn gold" onclick="showScreen('tutorial')">🚀 開始闖關</button>
+    </div>
+    <div class="ver">v3.1</div>
+  </section>
+
+  <!-- ========== 教學（三張卡片上下直排，往下滑動觀看） ========== -->
+  <section id="tutorial" class="screen">
+    <div class="tut-title">📜 尋寶秘笈（原理＋速算口訣）</div>
+    <div class="tut-hint">👇 用手指往下滑，看完三招秘技再出發！</div>
+
+    <!-- ===== 秘技一：頭同尾補 ===== -->
+    <div class="card tut-card">
+      <h3>秘技一：頭同尾補 🤝</h3>
+      <div class="tut-cond">🔴 <span class="rd">十位數相同</span>、🔵 <span class="bl">個位數相加 = 10</span></div>
+
+      <span class="sec-label">🔍 原理</span>
+      <div class="tut-derive">
+        <div class="lead"><span class="rd">4</span><span class="bl">3</span> × <span class="rd">4</span><span class="bl">7</span></div>
+        <div>= (<span class="rd">40</span> + <span class="bl">3</span>) × (<span class="rd">40</span> + <span class="bl">7</span>)</div>
+        <div>= <span class="rd">40</span> × <span class="rd">40</span> + <span class="bl">3</span> × <span class="rd">40</span> + <span class="bl">7</span> × <span class="rd">40</span> + <span class="bl">3</span> × <span class="bl">7</span></div>
+        <div>= <span class="rd">40</span> × (<span class="rd">40</span> + <span class="bl">3</span> + <span class="bl">7</span>) + <span class="bl">3</span> × <span class="bl">7</span></div>
+        <div>= <span class="rd">40</span> × <span class="rd">50</span> + <span class="bl">3</span> × <span class="bl">7</span></div>
+        <div>= <span class="rd">2000</span> + <span class="bl">21</span></div>
+        <div>= <span class="gd">2021</span></div>
+      </div>
+
+      <span class="sec-label gold">⚡ 速算口訣</span>
+      <div class="tut-steps">
+        ① 前段：<span class="rd">頭 × (頭+1)</span> → 4×5 = <span class="rd">20</span><br>
+        ② 後段：<span class="bl">尾 × 尾</span> → 3×7 = <span class="bl">21</span><br>
+        ③ 拼起來 → <span class="gd">2021</span>
+      </div>
+      <div class="tut-tip">💡 尾×尾不到 10 要補 0：21×29 → 6 和 09 → 609</div>
+      <button class="anim-btn" onclick="openAnim('t1')">🎬 點我觀看動畫示範</button>
+    </div>
+
+    <!-- ===== 秘技二：十幾乘十幾 ===== -->
+    <div class="card tut-card">
+      <h3>秘技二：十幾乘十幾 ✌️</h3>
+      <div class="tut-cond">🔴 <span class="rd">兩個數都是十幾</span>（11 ~ 19）</div>
+
+      <span class="sec-label">🔍 原理</span>
+      <div class="tut-derive">
+        <div class="lead"><span class="rd">1</span><span class="bl">4</span> × <span class="rd">1</span><span class="bl">5</span></div>
+        <div>= (<span class="rd">10</span> + <span class="bl">4</span>) × (<span class="rd">10</span> + <span class="bl">5</span>)</div>
+        <div>= <span class="rd">10</span> × <span class="rd">10</span> + <span class="bl">5</span> × <span class="rd">10</span> + <span class="bl">4</span> × <span class="rd">10</span> + <span class="bl">4</span> × <span class="bl">5</span></div>
+        <div>= <span class="rd">10</span> × (<span class="rd">10</span> + <span class="bl">4</span> + <span class="bl">5</span>) + <span class="bl">4</span> × <span class="bl">5</span></div>
+        <div>= <span class="rd">10</span> × <span class="rd">19</span> + <span class="bl">20</span></div>
+        <div>= <span class="rd">190</span> + <span class="bl">20</span></div>
+        <div>= <span class="gd">210</span></div>
+      </div>
+
+      <span class="sec-label gold">⚡ 速算口訣</span>
+      <div class="tut-steps">
+        ① 前段：<span class="rd">(被乘數 + 乘數個位) × 10</span> → (14+5)×10 = <span class="rd">190</span><br>
+        ② 後段：<span class="bl">尾 × 尾</span> → 4×5 = <span class="bl">20</span><br>
+        ③ 相加 → 190 + 20 = <span class="gd">210</span>
+      </div>
+      <button class="anim-btn" onclick="openAnim('t2')">🎬 點我觀看動畫示範</button>
+    </div>
+
+    <!-- ===== 秘技三：疊字配五 ===== -->
+    <div class="card tut-card">
+      <h3>秘技三：疊字配五 👯</h3>
+      <div class="tut-cond">🔴 <span class="rd">一數是疊字偶數（22、44、66、88）</span>、🔵 <span class="bl">另一數的數字相加 = 5（14、41、23、32）</span></div>
+
+      <span class="sec-label">🔍 原理</span>
+      <div class="tut-derive">
+        <div class="lead"><span class="bl">2</span><span class="bl">3</span> × <span class="rd">8</span><span class="rd">8</span></div>
+        <div>= (<span class="bl">20</span> + <span class="bl">3</span>) × (<span class="rd">80</span> + <span class="rd">8</span>)</div>
+        <div>= <span class="bl">20</span> × <span class="rd">80</span> + <span class="bl">20</span> × <span class="rd">8</span> + <span class="bl">3</span> × <span class="rd">80</span> + <span class="bl">3</span> × <span class="rd">8</span></div>
+        <div>= <span class="rd">1600</span> + <span class="rd">8</span> × (<span class="bl">20</span> + <span class="bl">30</span>) + <span class="bl">3</span> × <span class="rd">8</span></div>
+        <div>= <span class="rd">1600</span> + <span class="rd">8</span> × <span class="bl">50</span> + <span class="gd">24</span></div>
+        <div>= <span class="rd">1600</span> + <span class="rd">400</span> + <span class="gd">24</span></div>
+        <div>= <span class="gd">2024</span></div>
+      </div>
+
+      <span class="sec-label gold">⚡ 速算口訣</span>
+      <div class="tut-steps">
+        ① 前段：<span class="rd">頭 × 頭 + 疊字的一半</span> → 2×8+4 = <span class="rd">20</span><br>
+        ② 後段：<span class="bl">尾 × 尾</span> → 3×8 = <span class="bl">24</span><br>
+        ③ 拼起來 → <span class="gd">2024</span>
+      </div>
+      <div class="tut-tip">💡 尾×尾不到 10 要補 0：41×66 → 4×6+3=27 和 06 → 2706</div>
+      <button class="anim-btn" onclick="openAnim('t3')">🎬 點我觀看動畫示範</button>
+    </div>
+
+    <button class="btn gold" onclick="startGame()">⏱️ 我學會了，開始尋寶！</button>
+  </section>
+
+  <!-- ========== 遊戲 ========== -->
+  <section id="game" class="screen">
+    <div class="hud">
+      <div class="pill" id="progressPill">🧩 第 1 / 3 題</div>
+      <button class="hint-btn" onclick="openHint()">📜 秘笈</button>
+      <div class="pill" id="timerPill">⏱️ 180 秒</div>
+    </div>
+    <div class="timebar-wrap"><div id="timebar"></div></div>
+
+    <div class="chest-zone">
+      <span id="chestIcon">📦</span>
+      <div class="locks" id="locksRow">🔒 🔒 🔒</div>
+    </div>
+
+    <div class="question-box">
+      <div id="questionText">43 × 47 = ?</div>
+    </div>
+
+    <div id="segArea"></div>
+    <div id="feedback"></div>
+
+    <div class="keypad">
+      <button class="key" onclick="pressKey(1)">1</button>
+      <button class="key" onclick="pressKey(2)">2</button>
+      <button class="key" onclick="pressKey(3)">3</button>
+      <button class="key" onclick="pressKey(4)">4</button>
+      <button class="key" onclick="pressKey(5)">5</button>
+      <button class="key" onclick="pressKey(6)">6</button>
+      <button class="key" onclick="pressKey(7)">7</button>
+      <button class="key" onclick="pressKey(8)">8</button>
+      <button class="key" onclick="pressKey(9)">9</button>
+      <button class="key act-del" onclick="pressDel()">⌫</button>
+      <button class="key" onclick="pressKey(0)">0</button>
+      <button class="key act-ok" onclick="pressOk()">✅</button>
+    </div>
+  </section>
+
+  <!-- ========== 結算 ========== -->
+  <section id="result" class="screen">
+    <div class="sparkles" id="sparkles"></div>
+    <div id="resultChest">📦</div>
+    <div id="resultTitle">寶箱開啟！</div>
+    <div id="resultStats"></div>
+    <div id="reviewList"></div>
+    <div id="passBadge">✅ 挑戰成功<small>請向關主出示此畫面，蓋章過關 🖐️</small></div>
+    <div class="actions">
+      <button class="btn gold" id="retryBtn" onclick="startGame()">💪 立刻再挑戰一次</button>
+      <button class="btn ghost" onclick="showScreen('home')">🏠 完成，換下一位</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ========== 速算小抄（遊戲中可查看，計時不暫停） ========== -->
+<div id="hintOverlay" onclick="closeHint()">
+  <div class="hint-panel" onclick="event.stopPropagation()">
+    <h3>📜 三招速算口訣</h3>
+    <div class="hint-warn">⏱️ 注意：看小抄時計時不會暫停！</div>
+    <div class="hint-item"><b>① 頭同尾補</b>（十位同、個位相加=10）<br>頭×(頭+1) 接 尾×尾（不滿 10 補 0）<br>例：43×47 → 4×5=20、3×7=21 → 2021</div>
+    <div class="hint-item"><b>② 十幾×十幾</b>（都是 11~19）<br>(一數＋另一數個位)×10 ＋ 尾×尾<br>例：14×15 → (14+5)×10=190、4×5=20 → 210</div>
+    <div class="hint-item"><b>③ 疊字配五</b>（一數是 22/44/66/88，另一數數字和=5）<br>頭×頭＋疊字的一半 接 尾×尾（不滿 10 補 0）<br>例：23×88 → 2×8+4=20、3×8=24 → 2024</div>
+    <button class="btn gold" onclick="closeHint()">✊ 記住了，繼續解密！</button>
+  </div>
+</div>
+
+<!-- ========== 口訣動畫展示（點卡片上的「🎬 動畫示範」開啟） ========== -->
+<div id="animOverlay" onclick="closeAnim()">
+  <div class="anim-panel" onclick="event.stopPropagation()">
+    <h3 id="animTitle">秘技一：頭同尾補</h3>
+    <div class="anim-ex" id="animExLabel">範例 ①</div>
+
+    <div class="anim-stage">
+      <div class="anim-bridge" id="animBridge"></div>
+      <div class="anim-expr" id="animExpr"></div>
+      <div class="anim-checks">
+        <div class="anim-line" id="animChk1"></div>
+        <div class="anim-line" id="animChk2"></div>
+      </div>
+      <div class="anim-steps">
+        <div class="anim-step" id="animStep1"></div>
+        <div class="anim-step" id="animStep2"></div>
+      </div>
+      <div class="anim-slots">
+        <div class="anim-slot-wrap">
+          <div class="anim-slot" id="animSlotA">?</div>
+          <div class="anim-slot-tag">前段</div>
+        </div>
+        <div class="anim-plus" id="animPlus">+</div>
+        <div class="anim-slot-wrap">
+          <div class="anim-slot" id="animSlotB">?</div>
+          <div class="anim-slot-tag">後段</div>
+        </div>
+      </div>
+      <div class="anim-note" id="animNote"></div>
+      <div class="anim-answer" id="animAnswer"></div>
+      <div class="anim-mantra" id="animMantra"></div>
+    </div>
+
+    <div class="anim-ctrl">
+      <button class="btn gold" onclick="replayAnim()">🔁 重播</button>
+      <button class="btn ghost" id="animDoneBtn" onclick="closeAnim()" disabled>⏳ 播放中…</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const TIME_LIMIT = 180;   // 尋寶解密限時（秒）
+const TOTAL_Q = 3;
+
+let questions = [], qIndex = 0, solved = 0;
+let inputBuf = "";                 // 第二階段（相加型）的密碼輸入
+let segBufs = ["", ""], segIdx = 0; // 前段／後段輸入緩衝與目前欄位
+let stage = 1;                     // 1 = 填前段後段；2 = 相加型的最終密碼
+let startTs = 0, endTs = 0, usedSec = 0;   // 全部以時間戳計算，避免 setInterval 漂移
+let timerId = null, lastShownSec = -1;
+let uiLock = false;      // 答對後的轉場期間鎖住鍵盤，避免連點重複判定
+let gameOver = false;    // 遊戲已結束，忽略一切輸入與延遲回呼
+let nextTimer = null;    // 轉場用的 setTimeout，重新開始或結束時要清掉
+let hintOpen = false;
+let wakeLock = null;     // 螢幕常亮，避免園遊會現場平板自動休眠
+
+/* ---------- PWA 離線快取：第一次載入後即可完全離線，重新整理也不怕 ---------- */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js").catch(e => { /* file:// 或不支援時靜默略過 */ });
+}
+
+/* ---------- 畫面切換 ---------- */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const target = document.getElementById(id);
+  target.classList.add("active");
+  target.scrollTop = 0;   // 教學頁等可捲動畫面每次都從頂端開始
+}
+
+/* ---------- 螢幕常亮（支援的瀏覽器才生效，失敗就靜默略過） ---------- */
+async function keepAwake() {
+  try {
+    if ("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
+  } catch (e) { /* 不支援或被拒絕時忽略 */ }
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") keepAwake();
+});
+
+/* ---------- 出題（個位數一律避開 0） ---------- */
+function rnd(n) { return Math.floor(Math.random() * n); }
+
+// 每題除了題目與答案，還帶「前段／後段」拆解資料——
+// 玩家必須依口訣分段輸入，從機制上確保使用的是速算法，而不是直式硬算。
+
+// 型一：頭同尾補（十位相同、個位相加=10，如 43×47）→ 前段「接」後段
+function genHeadSame() {
+  const t = 2 + rnd(8);          // 十位 2~9
+  const u1 = 1 + rnd(9);         // 個位 1~9（u2 = 10-u1 也必在 1~9，不會是 0）
+  const u2 = 10 - u1;
+  const a = t * 10 + u1, b = t * 10 + u2;
+  const back = String(u1 * u2).padStart(2, "0");   // 口訣：尾×尾不滿 10 補 0
+  return {
+    text: `${a} × ${b}`, ans: a * b,
+    tech: "秘技一：頭同尾補", combine: "concat",
+    front: String(t * (t + 1)), back,
+    fHint: "頭 × (頭＋1)", bHint: "尾 × 尾（不滿 10 補 0）",
+    solveLine: `${t}×${t + 1}＝${t * (t + 1)}　接　${u1}×${u2}＝${back}`
+  };
+}
+
+// 型二：十幾乘十幾（嚴格限制 11~19，個位 1~9）→ 前段「＋」後段（相加型）
+function genTeens() {
+  const a = 11 + rnd(9), b = 11 + rnd(9);   // 11~19
+  const front = (a + b % 10) * 10, back = (a % 10) * (b % 10);
+  return {
+    text: `${a} × ${b}`, ans: a * b,
+    tech: "秘技二：十幾乘十幾", combine: "add",
+    front: String(front), back: String(back),
+    fHint: "(被乘數＋乘數個位) × 10", bHint: "尾 × 尾",
+    solveLine: `(${a}＋${b % 10})×10＝${front}　＋　${a % 10}×${b % 10}＝${back}　→ ${a * b}`
+  };
+}
+
+// 型三：疊字配五（一數為疊字偶數 22/44/66/88，另一數數字和=5，如 23×88）→ 前段「接」後段
+// 原理：交叉相乘 ad+bc = 疊字×(另一數數字和) = 疊字×5，必為 10 的倍數，整批進位
+function genTwinFive() {
+  const twins = [22, 44, 66, 88];
+  const fives = [14, 41, 23, 32];
+  const t = twins[rnd(twins.length)], f = fives[rnd(fives.length)];
+  const [a, b] = rnd(2) ? [t, f] : [f, t];   // 疊字前後位置隨機
+  const dd = t / 11, fh = Math.floor(f / 10), fu = f % 10;
+  const back = String(fu * dd).padStart(2, "0");   // 口訣：尾×尾不滿 10 補 0
+  return {
+    text: `${a} × ${b}`, ans: a * b,
+    tech: "秘技三：疊字配五", combine: "concat",
+    front: String(fh * dd + dd / 2), back,
+    fHint: "頭 × 頭 ＋ 疊字的一半", bHint: "尾 × 尾（不滿 10 補 0）",
+    solveLine: `${fh}×${dd}＋${dd / 2}＝${fh * dd + dd / 2}　接　${fu}×${dd}＝${back}`
+  };
+}
+
+// 三種題型各一題，順序完全隨機打亂（Fisher–Yates）
+function genQuestions() {
+  const gens = [genHeadSame, genTeens, genTwinFive];
+  for (let i = gens.length - 1; i > 0; i--) {
+    const j = rnd(i + 1);
+    [gens[i], gens[j]] = [gens[j], gens[i]];
+  }
+  return gens.map(g => {
+    const q = g();
+    q.len = String(q.ans).length;   // 密碼格數 = 解答位數（三種題型皆為 3~4 位）
+    q.ok = false;                   // 供失敗結算逐題回饋使用
+    return q;
+  });
+}
+
+/* ---------- 遊戲流程 ---------- */
+function startGame() {
+  questions = genQuestions();
+  qIndex = 0; solved = 0; inputBuf = "";
+  usedSec = 0; uiLock = false; gameOver = false;
+  closeHint();
+  clearTimeout(nextTimer);
+  clearInterval(timerId);
+  startTs = Date.now();
+  endTs = startTs + TIME_LIMIT * 1000;
+  lastShownSec = -1;
+  showScreen("game");
+  renderQuestion();
+  tick();                              // 立即顯示 180 秒
+  timerId = setInterval(tick, 250);    // 高頻檢查 + 時間戳計算，秒數不漂移
+  keepAwake();
+}
+
+function remainMs() { return Math.max(0, endTs - Date.now()); }
+
+function tick() {
+  if (gameOver) return;
+  const ms = remainMs();
+  const sec = Math.ceil(ms / 1000);
+  if (sec !== lastShownSec) {
+    lastShownSec = sec;
+    const pill = document.getElementById("timerPill");
+    pill.textContent = `⏱️ ${sec} 秒`;
+    pill.classList.toggle("warn", sec <= 30);
+  }
+  document.getElementById("timebar").style.width = (ms / (TIME_LIMIT * 1000) * 100) + "%";
+  if (ms <= 0) finishGame(false);
+}
+
+function renderQuestion() {
+  const q = questions[qIndex];
+  document.getElementById("progressPill").textContent = `🧩 第 ${qIndex + 1} / ${TOTAL_Q} 題`;
+  document.getElementById("questionText").textContent = q.text + " = ?";
+  renderLocks();
+  inputBuf = ""; segBufs = ["", ""]; segIdx = 0; stage = 1;
+  renderSegs();
+  setFeedback("依口訣拆解：先填 🔴 前段，再填 🔵 後段", "");
+}
+
+function renderLocks() {
+  document.getElementById("locksRow").textContent =
+    Array.from({ length: TOTAL_Q }, (_, i) => i < solved ? "🔓" : "🔒").join(" ");
+}
+
+function segSlotHTML(str, targetLen, fillCls) {
+  let h = "";
+  for (let i = 0; i < targetLen; i++) {
+    h += `<div class="code-slot seg${i < str.length ? " filled " + fillCls : ""}">${str[i] || ""}</div>`;
+  }
+  return h;
+}
+
+function renderSegs() {
+  const q = questions[qIndex];
+  const area = document.getElementById("segArea");
+  if (stage === 1) {
+    const sym = q.combine === "add" ? "＋" : "接";
+    area.innerHTML =
+      `<div class="seg-row">
+        <div class="seg-group sg-front${segIdx === 0 ? " active" : ""}">
+          <div class="seg-slots">${segSlotHTML(segBufs[0], q.front.length, "f-rd")}</div>
+          <div class="seg-tag rd">🔴 前段：${q.fHint}</div>
+        </div>
+        <div class="seg-sym">${sym}</div>
+        <div class="seg-group sg-back${segIdx === 1 ? " active" : ""}">
+          <div class="seg-slots">${segSlotHTML(segBufs[1], q.back.length, "f-bl")}</div>
+          <div class="seg-tag bl">🔵 後段：${q.bHint}</div>
+        </div>
+      </div>`;
+  } else {
+    area.innerHTML =
+      `<div class="seg-recap"><span class="rd">${q.front}</span> ＋ <span class="bl">${q.back}</span> ＝ ?</div>
+      <div class="seg-row">
+        <div class="seg-group sg-sum active">
+          <div class="seg-slots">${segSlotHTML(inputBuf, q.len, "f-gd")}</div>
+          <div class="seg-tag gd">🟡 相加的結果就是密碼</div>
+        </div>
+      </div>`;
+  }
+}
+
+function setFeedback(msg, cls) {
+  const f = document.getElementById("feedback");
+  f.textContent = msg;
+  f.className = cls;
+}
+
+function shakeChest() {
+  const chest = document.getElementById("chestIcon");
+  chest.classList.remove("shake");
+  void chest.offsetWidth;
+  chest.classList.add("shake");
+}
+
+function pressKey(n) {
+  if (uiLock || gameOver || hintOpen) return;
+  const q = questions[qIndex];
+  if (stage === 2) {
+    if (inputBuf.length >= q.len) return;
+    inputBuf += String(n);
+    renderSegs();
+    return;
+  }
+  // 第一階段：填目前欄位，前段填滿自動跳到後段
+  const lens = [q.front.length, q.back.length];
+  if (segBufs[segIdx].length >= lens[segIdx]) {
+    if (segIdx === 0 && segBufs[1].length < lens[1]) segIdx = 1;
+    else return;
+  }
+  segBufs[segIdx] += String(n);
+  if (segIdx === 0 && segBufs[0].length >= lens[0]) segIdx = 1;
+  renderSegs();
+}
+
+function pressDel() {
+  if (uiLock || gameOver || hintOpen) return;
+  if (stage === 2) {
+    if (!inputBuf) return;
+    inputBuf = inputBuf.slice(0, -1);
+    renderSegs();
+    return;
+  }
+  if (!segBufs[segIdx] && segIdx > 0) segIdx = 0;   // 後段空了就退回前段
+  if (!segBufs[segIdx]) return;
+  segBufs[segIdx] = segBufs[segIdx].slice(0, -1);
+  renderSegs();
+}
+
+// 本題解開：更新鎖頭與進度（成功瞬間就定勝負，不會被轉場期間的「時間到」搶先）
+function lockSolved() {
+  const q = questions[qIndex];
+  q.ok = true;
+  solved++;
+  uiLock = true;   // 轉場期間鎖鍵盤，連點 ✅ 不會重複判定同一題
+  setFeedback(`✨ 密碼 ${q.ans} 正確，解開一道鎖！`, "ok");
+  renderLocks();
+  if (solved >= TOTAL_Q) {
+    finishGame(true);
+  } else {
+    qIndex++;
+    nextTimer = setTimeout(() => { uiLock = false; renderQuestion(); }, 700);
+  }
+}
+
+function pressOk() {
+  if (uiLock || gameOver || hintOpen) return;
+  const q = questions[qIndex];
+
+  // 第二階段（相加型）：輸入最終密碼
+  if (stage === 2) {
+    if (!inputBuf) return;
+    if (Number(inputBuf) === q.ans) { lockSolved(); return; }
+    shakeChest();
+    setFeedback("❌ 相加結果不對，再算一次！", "no");
+    inputBuf = "";
+    renderSegs();
+    return;
+  }
+
+  // 第一階段：檢查前段與後段
+  if (segBufs[0].length < q.front.length || segBufs[1].length < q.back.length) {
+    setFeedback("⚠️ 前段和後段都要填滿喔！", "no");
+    return;
+  }
+  const okF = segBufs[0] === q.front, okB = segBufs[1] === q.back;
+  if (okF && okB) {
+    if (q.combine === "add") {
+      stage = 2; inputBuf = "";
+      renderSegs();
+      setFeedback("✨ 兩段都對！最後一步：把它們相加", "ok");
+    } else {
+      lockSolved();   // 拼接型：兩段拼起來就是密碼
+    }
+    return;
+  }
+  // 針對錯的那一段給口訣提示，只清空錯的欄位（答對的部分保留）
+  shakeChest();
+  if (!okF && !okB) {
+    segBufs = ["", ""]; segIdx = 0;
+    setFeedback("❌ 兩段都不對，打開 📜 秘笈想一想！", "no");
+  } else if (!okF) {
+    segBufs[0] = ""; segIdx = 0;
+    setFeedback(`❌ 🔴 前段不對，想想「${q.fHint}」`, "no");
+  } else {
+    segBufs[1] = ""; segIdx = 1;
+    setFeedback(`❌ 🔵 後段不對，想想「${q.bHint}」`, "no");
+  }
+  renderSegs();
+}
+
+/* 桌機測試也能用實體鍵盤：數字、Backspace/Delete、Enter */
+document.addEventListener("keydown", e => {
+  if (!document.getElementById("game").classList.contains("active")) return;
+  if (hintOpen) { if (e.key === "Escape") closeHint(); return; }
+  if (e.key >= "0" && e.key <= "9") pressKey(Number(e.key));
+  else if (e.key === "Backspace" || e.key === "Delete") { e.preventDefault(); pressDel(); }
+  else if (e.key === "Enter") pressOk();
+});
+
+/* ================= 口訣動畫引擎（資料驅動，之後可直接擴充秘技二、三） =================
+   每一招 = { title, mantra, examples: [ 範例 ] }
+   每個範例 = {
+     digits : 四個數字（被乘數十位、個位、乘數十位、個位）
+     colors : 對應顏色 rd(紅=頭) / bl(藍=尾)，之後其他招式可自由指定
+     checks : 條件檢查兩行
+     steps  : 兩個步驟（前段、後段），val 會飛進下方的方格
+     combine: "concat"(拼接) 或 "add"(相加) ← 秘技二用 add，秘技一、三用 concat
+     pad    : 需要補 0 時填 { note, val }，不需要就 null
+     answer : 最終答案
+   } */
+const ANIM_DATA = {
+  t1: {
+    title: "秘技一：頭同尾補 🤝",
+    mantra: "⚡ 口訣：<span class='rd'>頭 × (頭+1)</span> 接 <span class='bl'>尾 × 尾</span>（不滿 10 要補 0）",
+    examples: [
+      {
+        digits: ["4", "3", "4", "7"],
+        colors: ["rd", "bl", "rd", "bl"],
+        checks: [
+          "🔴 十位數相同：<span class='rd'>4</span> ＝ <span class='rd'>4</span> ✅",
+          "🔵 個位數相加：<span class='bl'>3</span> ＋ <span class='bl'>7</span> ＝ <span class='bl'>10</span> ✅"
+        ],
+        steps: [
+          { cls: "rd", val: "20", html: "① 前段：<span class='rd'>頭 × (頭＋1)</span> → <span class='rd'>4 × 5 = 20</span>" },
+          { cls: "bl", val: "21", html: "② 後段：<span class='bl'>尾 × 尾</span> → <span class='bl'>3 × 7 = 21</span>" }
+        ],
+        combine: "concat",
+        pad: null,
+        answer: "2021"
+      },
+      {
+        digits: ["2", "1", "2", "9"],
+        colors: ["rd", "bl", "rd", "bl"],
+        checks: [
+          "🔴 十位數相同：<span class='rd'>2</span> ＝ <span class='rd'>2</span> ✅",
+          "🔵 個位數相加：<span class='bl'>1</span> ＋ <span class='bl'>9</span> ＝ <span class='bl'>10</span> ✅"
+        ],
+        steps: [
+          { cls: "rd", val: "6", html: "① 前段：<span class='rd'>頭 × (頭＋1)</span> → <span class='rd'>2 × 3 = 6</span>" },
+          { cls: "bl", val: "9", html: "② 後段：<span class='bl'>尾 × 尾</span> → <span class='bl'>1 × 9 = 9</span>" }
+        ],
+        combine: "concat",
+        pad: { val: "09", note: "⚠️ 後段只有 1 位數 → 前面補一個 0 → 09" },
+        answer: "609"
+      }
+    ]
+  },
+
+  t2: {
+    title: "秘技二：十幾乘十幾 ✌️",
+    mantra: "⚡ 口訣：<span class='rd'>(被乘數＋乘數個位) × 10</span> ＋ <span class='bl'>尾 × 尾</span>（這招是<b>相加</b>，不用補 0）",
+    examples: [
+      {
+        digits: ["1", "4", "1", "5"],
+        colors: ["rd", "bl", "rd", "bl"],
+        checks: [
+          "🔴 兩個數都是「十幾」：<span class='rd'>14</span>、<span class='rd'>15</span>（11 ~ 19）✅",
+          "🔵 尾數是 <span class='bl'>4</span> 和 <span class='bl'>5</span>"
+        ],
+        steps: [
+          { cls: "rd", val: "190", html: "① 前段：<span class='rd'>(被乘數 ＋ 乘數個位) × 10</span> → <span class='rd'>(14＋5) × 10 = 190</span>" },
+          { cls: "bl", val: "20", html: "② 後段：<span class='bl'>尾 × 尾</span> → <span class='bl'>4 × 5 = 20</span>" }
+        ],
+        combine: "add",
+        pad: null,
+        answer: "210"
+      },
+      {
+        digits: ["1", "2", "1", "3"],
+        colors: ["rd", "bl", "rd", "bl"],
+        checks: [
+          "🔴 兩個數都是「十幾」：<span class='rd'>12</span>、<span class='rd'>13</span> ✅",
+          "🔵 尾數是 <span class='bl'>2</span> 和 <span class='bl'>3</span>"
+        ],
+        steps: [
+          { cls: "rd", val: "150", html: "① 前段：<span class='rd'>(12＋3) × 10 = 150</span>" },
+          { cls: "bl", val: "6", html: "② 後段：<span class='bl'>2 × 3 = 6</span>" }
+        ],
+        combine: "add",
+        pad: null,
+        answer: "156"
+      }
+    ]
+  },
+
+  t3: {
+    title: "秘技三：疊字配五 👯",
+    mantra: "⚡ 口訣：<span class='rd'>頭 × 頭 ＋ 疊字的一半</span> 接 <span class='bl'>尾 × 尾</span>（不滿 10 要補 0）",
+    examples: [
+      {
+        digits: ["2", "3", "8", "8"],
+        colors: ["bl", "bl", "rd", "rd"],
+        checks: [
+          "🔴 <span class='rd'>88</span> 是疊字偶數（22、44、66、88）✅",
+          "🔵 <span class='bl'>2</span> ＋ <span class='bl'>3</span> ＝ <span class='bl'>5</span> ✅"
+        ],
+        steps: [
+          { cls: "rd", val: "20", html: "① 前段：<span class='rd'>頭 × 頭 ＋ 疊字的一半</span> → <span class='rd'>2 × 8 ＋ 4 = 20</span>" },
+          { cls: "bl", val: "24", html: "② 後段：<span class='bl'>尾 × 尾</span> → <span class='bl'>3 × 8 = 24</span>" }
+        ],
+        combine: "concat",
+        pad: null,
+        answer: "2024"
+      },
+      {
+        digits: ["4", "1", "6", "6"],
+        colors: ["bl", "bl", "rd", "rd"],
+        checks: [
+          "🔴 <span class='rd'>66</span> 是疊字偶數 ✅",
+          "🔵 <span class='bl'>4</span> ＋ <span class='bl'>1</span> ＝ <span class='bl'>5</span> ✅"
+        ],
+        steps: [
+          { cls: "rd", val: "27", html: "① 前段：<span class='rd'>4 × 6 ＋ 3 = 27</span>（66 的一半是 3）" },
+          { cls: "bl", val: "6", html: "② 後段：<span class='bl'>尾 × 尾</span> → <span class='bl'>1 × 6 = 6</span>" }
+        ],
+        combine: "concat",
+        pad: { val: "06", note: "⚠️ 後段只有 1 位數 → 前面補一個 0 → 06" },
+        answer: "2706"
+      }
+    ]
+  }
+};
+
+/* 播放速度：數字越大越慢（1 = 原速）。慢節奏設 1.45，方便日後現場微調 */
+const ANIM_SPEED = 1.45;
+
+let animKey = null, animTimers = [], animAudio = null;
+
+/* 輕音效：每一步「叮」一聲（用 WebAudio 產生，不需外部檔案） */
+function ding(freq, dur) {
+  try {
+    if (!animAudio) animAudio = new (window.AudioContext || window.webkitAudioContext)();
+    if (animAudio.state === "suspended") animAudio.resume();
+    const o = animAudio.createOscillator(), g = animAudio.createGain();
+    o.type = "sine";
+    o.frequency.value = freq || 880;
+    const t0 = animAudio.currentTime, d = dur || 0.12;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.16, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+    o.connect(g); g.connect(animAudio.destination);
+    o.start(t0); o.stop(t0 + d + 0.02);
+  } catch (e) { /* 音效失敗不影響動畫 */ }
+}
+
+function animAt(ms, fn) { animTimers.push(setTimeout(fn, ms * ANIM_SPEED)); }
+function clearAnimTimers() { animTimers.forEach(clearTimeout); animTimers = []; }
+
+const $a = id => document.getElementById(id);
+
+function resetAnimStage() {
+  const panel = document.querySelector(".anim-panel");
+  if (panel) panel.scrollTop = 0;               // 每段開始都捲回頂端，避免畫面停在下方看不到新算式
+  $a("animBridge").classList.remove("show");
+  $a("animExpr").innerHTML = "";
+  ["animChk1", "animChk2", "animStep1", "animStep2"].forEach(id => {
+    $a(id).classList.remove("show"); $a(id).innerHTML = "";
+  });
+  ["animSlotA", "animSlotB"].forEach(id => {
+    const s = $a(id); s.className = "anim-slot"; s.textContent = "?";
+  });
+  $a("animPlus").classList.remove("show");
+  $a("animNote").classList.remove("show"); $a("animNote").innerHTML = "";
+  $a("animAnswer").classList.remove("show"); $a("animAnswer").innerHTML = "";
+  $a("animMantra").classList.remove("show");
+}
+
+/* 排一個範例的動畫時間軸，回傳這個範例佔用的總毫秒數 */
+function scheduleExample(ex, base, exLabel) {
+  const T = {
+    expr: 0, head: 700, tail: 1700, chk1: 2700, chk2: 3800,
+    step1: 5200, step2: 7200
+  };
+  let tAns = 9300;
+
+  animAt(base + T.expr, () => {
+    resetAnimStage();
+    $a("animExLabel").textContent = exLabel;
+    const wrap = $a("animExpr");
+    wrap.innerHTML =
+      `<span class="dg" id="dg0">${ex.digits[0]}</span><span class="dg" id="dg1">${ex.digits[1]}</span>` +
+      `<span class="op">×</span>` +
+      `<span class="dg" id="dg2">${ex.digits[2]}</span><span class="dg" id="dg3">${ex.digits[3]}</span>`;
+  });
+
+  // 頭（紅）先跳出來，尾（藍）再跳出來
+  animAt(base + T.head, () => {
+    ex.colors.forEach((c, i) => { if (c === "rd") $a("dg" + i).classList.add("hi-rd"); });
+    ding(660, 0.1);
+  });
+  animAt(base + T.tail, () => {
+    ex.colors.forEach((c, i) => { if (c === "bl") $a("dg" + i).classList.add("hi-bl"); });
+    ding(760, 0.1);
+  });
+
+  animAt(base + T.chk1, () => { $a("animChk1").innerHTML = ex.checks[0]; $a("animChk1").classList.add("show"); ding(880, 0.09); });
+  animAt(base + T.chk2, () => { $a("animChk2").innerHTML = ex.checks[1]; $a("animChk2").classList.add("show"); ding(880, 0.09); });
+
+  // ① 前段 → 飛進左邊方格
+  animAt(base + T.step1, () => {
+    $a("animStep1").innerHTML = ex.steps[0].html; $a("animStep1").classList.add("show");
+    const s = $a("animSlotA");
+    s.textContent = ex.steps[0].val;
+    s.classList.add("fill-" + ex.steps[0].cls);
+    ding(990, 0.14);
+  });
+
+  // ② 後段 → 飛進右邊方格
+  animAt(base + T.step2, () => {
+    $a("animStep2").innerHTML = ex.steps[1].html; $a("animStep2").classList.add("show");
+    const s = $a("animSlotB");
+    s.textContent = ex.steps[1].val;
+    s.classList.add("fill-" + ex.steps[1].cls);
+    if (ex.combine === "add") $a("animPlus").classList.add("show");
+    ding(990, 0.14);
+  });
+
+  // 需要補 0 的特殊狀況
+  if (ex.pad) {
+    animAt(base + 8900, () => {
+      $a("animNote").innerHTML = ex.pad.note; $a("animNote").classList.add("show");
+      $a("animSlotB").textContent = ex.pad.val;
+      ding(520, 0.18);
+    });
+    tAns = 10900;
+  }
+
+  // ③ 拼起來 / 相加 → 答案
+  animAt(base + tAns, () => {
+    const symbol = ex.combine === "add" ? "＋" : "接";
+    $a("animAnswer").innerHTML =
+      `<span class="rd">${ex.steps[0].val}</span> <span style="font-size:.6em;color:#9fdcff">${symbol}</span> ` +
+      `<span class="bl">${ex.pad ? ex.pad.val : ex.steps[1].val}</span>` +
+      `<span style="font-size:.6em;color:#9fdcff"> → </span><span class="gd">${ex.answer}</span>`;
+    $a("animAnswer").classList.add("show");
+    ding(1180, 0.16);
+    setTimeout(() => ding(1560, 0.22), 160);
+  });
+
+  return tAns + 3000;   // 答案停留時間（會再乘上 ANIM_SPEED）
+}
+
+function lockDoneBtn(text) {
+  const b = $a("animDoneBtn");
+  b.disabled = true; b.textContent = text || "⏳ 播放中…";
+}
+function unlockDoneBtn() {
+  const b = $a("animDoneBtn");
+  b.disabled = false; b.textContent = "✅ 我懂了";
+}
+
+function playAnim() {
+  const data = ANIM_DATA[animKey];
+  if (!data) return;
+  clearAnimTimers();
+  resetAnimStage();
+  lockDoneBtn(data.examples.length > 1 ? "⏳ 播放中…還有範例 ②" : "⏳ 播放中…");
+  $a("animTitle").innerHTML = data.title;
+
+  let cursor = 0;
+  const total = data.examples.length;
+  data.examples.forEach((ex, i) => {
+    const num = ["①", "②", "③"][i] || (i + 1);
+    const label = `範例 ${num}／${total}　` + ex.digits[0] + ex.digits[1] + " × " + ex.digits[2] + ex.digits[3] + (ex.pad ? "（特例）" : "");
+    // 換範例前，先跳一張轉場字卡，讓學生知道還有下一段
+    if (i > 0) {
+      const bridgeMs = 2000;   // 轉場字卡停留（會再乘上 ANIM_SPEED，約 3 秒）
+      animAt(cursor, () => {
+        $a("animBridge").innerHTML = ex.pad
+          ? "🤔 那如果 <span class='bl'>尾 × 尾</span> 不到 10 呢？<br>再看一題：<span class='gd'>" + ex.digits.slice(0,2).join("") + " × " + ex.digits.slice(2).join("") + "</span>"
+          : "👉 再看一題：<span class='gd'>" + ex.digits.slice(0,2).join("") + " × " + ex.digits.slice(2).join("") + "</span>";
+        $a("animBridge").classList.add("show");
+        lockDoneBtn("⏳ 播放中…範例 ②");
+        ding(700, 0.16);
+      });
+      cursor += bridgeMs;
+    }
+    cursor += scheduleExample(ex, cursor, label);
+  });
+
+  // 結尾：秀出口訣
+  animAt(cursor - 900, () => {
+    $a("animMantra").innerHTML = data.mantra;
+    $a("animMantra").classList.add("show");
+    unlockDoneBtn();          // 兩個範例都播完，才能按「我懂了」
+  });
+}
+
+function openAnim(key) {
+  animKey = key;
+  $a("animOverlay").classList.add("show");
+  playAnim();
+}
+function replayAnim() { playAnim(); }
+function closeAnim() {
+  clearAnimTimers();
+  $a("animOverlay").classList.remove("show");
+  resetAnimStage();
+}
+
+/* ---------- 結算 ---------- */
+function finishGame(unlocked) {
+  if (gameOver) return;   // 時間到與答完最後一題同時發生時，只結算一次（成功優先，因為成功走同步呼叫）
+  gameOver = true;
+  uiLock = true;
+  clearInterval(timerId);
+  clearTimeout(nextTimer);
+  usedSec = unlocked ? Math.min(TIME_LIMIT, Math.round((Date.now() - startTs) / 1000)) : TIME_LIMIT;
+  // 成功時停留 0.7 秒讓玩家看到「密碼正確」的回饋，再進結算畫面；失敗（時間到）直接切換
+  nextTimer = setTimeout(() => showResult(unlocked), unlocked ? 700 : 0);
+}
+
+function showResult(unlocked) {
+  closeHint();
+  showScreen("result");
+  const chest = document.getElementById("resultChest");
+  const title = document.getElementById("resultTitle");
+  const stats = document.getElementById("resultStats");
+  const spark = document.getElementById("sparkles");
+  const badge = document.getElementById("passBadge");
+  const retry = document.getElementById("retryBtn");
+  const review = document.getElementById("reviewList");
+  chest.classList.remove("open");
+
+  if (unlocked) {
+    review.style.display = "none"; review.innerHTML = "";
+    chest.textContent = "🎉💎🏆💎🎉";
+    void chest.offsetWidth;
+    chest.classList.add("open");
+    spark.textContent = "✨ ⭐ ✨ ⭐ ✨";
+    title.textContent = "寶箱開啟成功！";
+    stats.innerHTML = `密碼全數破解 <b style="color:#24e6a0">${solved} / ${TOTAL_Q}</b>　⏱️ 耗時 <b style="color:#ffe27a">${usedSec}</b> 秒`;
+    badge.style.display = "block";
+    retry.style.display = "none";
+  } else {
+    chest.textContent = "📦🔒";
+    spark.textContent = "⏰";
+    title.textContent = "時間到！寶箱還差一點…";
+    stats.innerHTML = `答對 <b style="color:#24e6a0">${solved} / ${TOTAL_Q}</b> 題　看看正解怎麼拆：`;
+    // 逐題回饋：沒解開的題目附上該招口訣拆解，把「失敗」變成學習素材
+    review.innerHTML = questions.map(q => q.ok
+      ? `<div class="rv-item ok">✅ ${q.text} ＝ <b>${q.ans}</b>（已破解）</div>`
+      : `<div class="rv-item no">🔒 ${q.text} ＝ <b>${q.ans}</b><br><span class="tech">${q.tech}</span>　${q.solveLine}</div>`
+    ).join("");
+    review.style.display = "flex";
+    badge.style.display = "none";
+    retry.style.display = "block";
+  }
+}
+
+/* ---------- 速算小抄 ---------- */
+function openHint() {
+  if (gameOver) return;
+  hintOpen = true;
+  document.getElementById("hintOverlay").classList.add("show");
+}
+function closeHint() {
+  hintOpen = false;
+  document.getElementById("hintOverlay").classList.remove("show");
+}
+</script>
+</body>
+</html>
