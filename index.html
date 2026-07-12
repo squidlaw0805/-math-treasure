@@ -367,11 +367,12 @@
     <h1 class="logo">數學速解尋寶記</h1>
     <div class="subtitle">🛰️ MATH TREASURE HUNT 🛰️</div>
     <div class="chest-hero">🗝️📦</div>
-    <p class="home-desc">學會三招速算秘技，⏱️ 180 秒內<br><b>3 道密碼全部破解</b>，才能打開寶箱過關！<br>密碼要照口訣拆成 <b>前段＋後段</b> 輸入喔<br>失敗了沒關係，可以馬上再挑戰 💪</p>
+    <p class="home-desc">學會三招速算秘技，⏱️ 180 秒內<br><b>3 道密碼全部破解</b>，才能打開寶箱過關！<br>密碼要照口訣一步一步拆解輸入喔<br>失敗了沒關係，可以馬上再挑戰 💪</p>
     <div class="home-btns">
-      <button class="btn gold" onclick="showScreen('tutorial')">🚀 開始闖關</button>
+      <button class="btn gold" onclick="showScreen('tutorial')">📜 先看秘笈教學</button>
+      <button class="btn ghost" onclick="startGame()">⚡ 直接開始挑戰</button>
     </div>
-    <div class="ver">v3.1</div>
+    <div class="ver">v3.2</div>
   </section>
 
   <!-- ========== 教學（三張卡片上下直排，往下滑動觀看） ========== -->
@@ -430,29 +431,28 @@
       <button class="anim-btn" onclick="openAnim('t2')">🎬 點我觀看動畫示範</button>
     </div>
 
-    <!-- ===== 秘技三：疊字配五 ===== -->
+    <!-- ===== 秘技三：兩位數 × 11 ===== -->
     <div class="card tut-card">
-      <h3>秘技三：疊字配五 👯</h3>
-      <div class="tut-cond">🔴 <span class="rd">一數是疊字偶數（22、44、66、88）</span>、🔵 <span class="bl">另一數的數字相加 = 5（14、41、23、32）</span></div>
+      <h3>秘技三：兩位數 × 11 🪄</h3>
+      <div class="tut-cond">🪄 <span class="rd">任何兩位數</span> × <span class="bl">11</span> 通通適用</div>
 
       <span class="sec-label">🔍 原理</span>
       <div class="tut-derive">
-        <div class="lead"><span class="bl">2</span><span class="bl">3</span> × <span class="rd">8</span><span class="rd">8</span></div>
-        <div>= (<span class="bl">20</span> + <span class="bl">3</span>) × (<span class="rd">80</span> + <span class="rd">8</span>)</div>
-        <div>= <span class="bl">20</span> × <span class="rd">80</span> + <span class="bl">20</span> × <span class="rd">8</span> + <span class="bl">3</span> × <span class="rd">80</span> + <span class="bl">3</span> × <span class="rd">8</span></div>
-        <div>= <span class="rd">1600</span> + <span class="rd">8</span> × (<span class="bl">20</span> + <span class="bl">30</span>) + <span class="bl">3</span> × <span class="rd">8</span></div>
-        <div>= <span class="rd">1600</span> + <span class="rd">8</span> × <span class="bl">50</span> + <span class="gd">24</span></div>
-        <div>= <span class="rd">1600</span> + <span class="rd">400</span> + <span class="gd">24</span></div>
-        <div>= <span class="gd">2024</span></div>
+        <div class="lead"><span class="rd">3</span><span class="bl">4</span> × 11</div>
+        <div>= (<span class="rd">30</span> + <span class="bl">4</span>) × (10 + 1)</div>
+        <div>= <span class="rd">30</span>×10 + <span class="rd">30</span>×1 + <span class="bl">4</span>×10 + <span class="bl">4</span>×1</div>
+        <div>= <span class="rd">300</span> + (<span class="rd">30</span> + <span class="bl">40</span>) + <span class="bl">4</span></div>
+        <div>= <span class="rd">300</span> + (<span class="rd">3</span> + <span class="bl">4</span>)×10 + <span class="bl">4</span></div>
+        <div>= <span class="rd">3</span><span class="gd">7</span><span class="bl">4</span></div>
       </div>
 
       <span class="sec-label gold">⚡ 速算口訣</span>
       <div class="tut-steps">
-        ① 前段：<span class="rd">頭 × 頭 + 疊字的一半</span> → 2×8+4 = <span class="rd">20</span><br>
-        ② 後段：<span class="bl">尾 × 尾</span> → 3×8 = <span class="bl">24</span><br>
-        ③ 拼起來 → <span class="gd">2024</span>
+        ① <span class="rd">兩邊拉開</span> → 3 ▢ 4<br>
+        ② <span class="bl">中間相加</span> → 3＋4 = <span class="gd">7</span><br>
+        ③ 放進中間 → <span class="gd">374</span>
       </div>
-      <div class="tut-tip">💡 尾×尾不到 10 要補 0：41×66 → 4×6+3=27 和 06 → 2706</div>
+      <div class="tut-tip">💡 中間相加滿 10 要進位：67×11 → 6＋7=13 → 1 進給左邊的 6 → 737</div>
       <button class="anim-btn" onclick="openAnim('t3')">🎬 點我觀看動畫示範</button>
     </div>
 
@@ -519,7 +519,7 @@
     <div class="hint-warn">⏱️ 注意：看小抄時計時不會暫停！</div>
     <div class="hint-item"><b>① 頭同尾補</b>（十位同、個位相加=10）<br>頭×(頭+1) 接 尾×尾（不滿 10 補 0）<br>例：43×47 → 4×5=20、3×7=21 → 2021</div>
     <div class="hint-item"><b>② 十幾×十幾</b>（都是 11~19）<br>(一數＋另一數個位)×10 ＋ 尾×尾<br>例：14×15 → (14+5)×10=190、4×5=20 → 210</div>
-    <div class="hint-item"><b>③ 疊字配五</b>（一數是 22/44/66/88，另一數數字和=5）<br>頭×頭＋疊字的一半 接 尾×尾（不滿 10 補 0）<br>例：23×88 → 2×8+4=20、3×8=24 → 2024</div>
+    <div class="hint-item"><b>③ 兩位數 × 11</b>（任何兩位數都行）<br>兩邊拉開、中間相加（滿 10 進位）<br>例：34×11 → 3▢4，3+4=7 → 374；67×11 → 6+7=13 進位 → 737</div>
     <button class="btn gold" onclick="closeHint()">✊ 記住了，繼續解密！</button>
   </div>
 </div>
@@ -544,12 +544,12 @@
       <div class="anim-slots">
         <div class="anim-slot-wrap">
           <div class="anim-slot" id="animSlotA">?</div>
-          <div class="anim-slot-tag">前段</div>
+          <div class="anim-slot-tag" id="animTagA">前段</div>
         </div>
         <div class="anim-plus" id="animPlus">+</div>
         <div class="anim-slot-wrap">
           <div class="anim-slot" id="animSlotB">?</div>
-          <div class="anim-slot-tag">後段</div>
+          <div class="anim-slot-tag" id="animTagB">後段</div>
         </div>
       </div>
       <div class="anim-note" id="animNote"></div>
@@ -639,27 +639,30 @@ function genTeens() {
   };
 }
 
-// 型三：疊字配五（一數為疊字偶數 22/44/66/88，另一數數字和=5，如 23×88）→ 前段「接」後段
-// 原理：交叉相乘 ad+bc = 疊字×(另一數數字和) = 疊字×5，必為 10 的倍數，整批進位
-function genTwinFive() {
-  const twins = [22, 44, 66, 88];
-  const fives = [14, 41, 23, 32];
-  const t = twins[rnd(twins.length)], f = fives[rnd(fives.length)];
-  const [a, b] = rnd(2) ? [t, f] : [f, t];   // 疊字前後位置隨機
-  const dd = t / 11, fh = Math.floor(f / 10), fu = f % 10;
-  const back = String(fu * dd).padStart(2, "0");   // 口訣：尾×尾不滿 10 補 0
+// 型三：任何兩位數 × 11（口訣：兩邊拉開、中間相加；中間滿 10 進位）
+// 原理：(10a+b)×11 = 100a + 10(a+b) + b —— 一般式 (10a+b)(10c+d) 最透明的展示
+function genEleven() {
+  const a = 1 + rnd(9);          // 十位 1~9
+  const b = 1 + rnd(9);          // 個位 1~9（避開 0，與其他題型一致）
+  const n = a * 10 + b;
+  const [x, y] = rnd(2) ? [n, 11] : [11, n];   // 11 前後位置隨機
+  const mid = a + b;
+  const carry = mid >= 10;       // 兩數字和 ≥10 的機率天然約 44%，進位題自然出現
   return {
-    text: `${a} × ${b}`, ans: a * b,
-    tech: "秘技三：疊字配五", combine: "concat",
-    front: String(fh * dd + dd / 2), back,
-    fHint: "頭 × 頭 ＋ 疊字的一半", bHint: "尾 × 尾（不滿 10 補 0）",
-    solveLine: `${fh}×${dd}＋${dd / 2}＝${fh * dd + dd / 2}　接　${fu}×${dd}＝${back}`
+    text: `${x} × ${y}`, ans: n * 11,
+    tech: "秘技三：兩位數 × 11", combine: "eleven",
+    front: String(mid), back: "",
+    fHint: "中間 ＝ 頭 ＋ 尾", bHint: "",
+    a, b, carry,
+    solveLine: carry
+      ? `兩邊拉開 ${a} ▢ ${b}，中間 ${a}＋${b}＝${mid} 滿十進位 → ${a}＋1＝${a + 1}、${mid - 10}、${b} → ${n * 11}`
+      : `兩邊拉開 ${a} ▢ ${b}，中間放 ${a}＋${b}＝${mid} → ${n * 11}`
   };
 }
 
 // 三種題型各一題，順序完全隨機打亂（Fisher–Yates）
 function genQuestions() {
-  const gens = [genHeadSame, genTeens, genTwinFive];
+  const gens = [genHeadSame, genTeens, genEleven];
   for (let i = gens.length - 1; i > 0; i--) {
     const j = rnd(i + 1);
     [gens[i], gens[j]] = [gens[j], gens[i]];
@@ -713,7 +716,7 @@ function renderQuestion() {
   renderLocks();
   inputBuf = ""; segBufs = ["", ""]; segIdx = 0; stage = 1;
   renderSegs();
-  setFeedback("依口訣拆解：先填 🔴 前段，再填 🔵 後段", "");
+  setFeedback(q.combine === "eleven" ? "先算 🟡 中間 ＝ 🔴頭 ＋ 🔵尾" : "依口訣拆解：先填 🔴 前段，再填 🔵 後段", "");
 }
 
 function renderLocks() {
@@ -732,6 +735,29 @@ function segSlotHTML(str, targetLen, fillCls) {
 function renderSegs() {
   const q = questions[qIndex];
   const area = document.getElementById("segArea");
+  // ×11 型：第一步填「中間＝頭＋尾」，第二步輸入完整密碼（進位由玩家處理）
+  if (q.combine === "eleven") {
+    if (stage === 1) {
+      area.innerHTML =
+        `<div class="seg-recap"><span class="rd">${q.a}</span> ▢ <span class="bl">${q.b}</span>　← 兩邊拉開</div>
+        <div class="seg-row">
+          <div class="seg-group sg-sum active">
+            <div class="seg-slots">${segSlotHTML(segBufs[0], q.front.length, "f-gd")}</div>
+            <div class="seg-tag gd">🟡 中間 ＝ 🔴頭 ＋ 🔵尾</div>
+          </div>
+        </div>`;
+    } else {
+      area.innerHTML =
+        `<div class="seg-recap"><span class="rd">${q.a}</span> <span class="gd">${q.front}</span> <span class="bl">${q.b}</span>${q.carry ? "　⚠️ 滿十進位！" : ""}</div>
+        <div class="seg-row">
+          <div class="seg-group sg-sum active">
+            <div class="seg-slots">${segSlotHTML(inputBuf, q.len, "f-gd")}</div>
+            <div class="seg-tag gd">🟡 ${q.carry ? "進位處理後的" : ""}完整密碼</div>
+          </div>
+        </div>`;
+    }
+    return;
+  }
   if (stage === 1) {
     const sym = q.combine === "add" ? "＋" : "接";
     area.innerHTML =
@@ -780,14 +806,14 @@ function pressKey(n) {
     renderSegs();
     return;
   }
-  // 第一階段：填目前欄位，前段填滿自動跳到後段
-  const lens = [q.front.length, q.back.length];
+  // 第一階段：填目前欄位，前段填滿自動跳到後段（×11 型只有一個「中間」欄）
+  const lens = q.combine === "eleven" ? [q.front.length, 0] : [q.front.length, q.back.length];
   if (segBufs[segIdx].length >= lens[segIdx]) {
     if (segIdx === 0 && segBufs[1].length < lens[1]) segIdx = 1;
     else return;
   }
   segBufs[segIdx] += String(n);
-  if (segIdx === 0 && segBufs[0].length >= lens[0]) segIdx = 1;
+  if (segIdx === 0 && lens[1] > 0 && segBufs[0].length >= lens[0]) segIdx = 1;
   renderSegs();
 }
 
@@ -825,14 +851,37 @@ function pressOk() {
   if (uiLock || gameOver || hintOpen) return;
   const q = questions[qIndex];
 
-  // 第二階段（相加型）：輸入最終密碼
+  // 第二階段：輸入最終密碼（秘技二＝相加結果；×11＝進位處理後的完整數）
   if (stage === 2) {
     if (!inputBuf) return;
     if (Number(inputBuf) === q.ans) { lockSolved(); return; }
     shakeChest();
-    setFeedback("❌ 相加結果不對，再算一次！", "no");
+    if (q.combine === "eleven") {
+      setFeedback(q.carry ? "❌ 差一點！記得中間滿十要進位" : "❌ 兩邊拉開，把中間放進去就好", "no");
+    } else {
+      setFeedback("❌ 相加結果不對，再算一次！", "no");
+    }
     inputBuf = "";
     renderSegs();
+    return;
+  }
+
+  // ×11 型第一階段：檢查「中間＝頭＋尾」
+  if (q.combine === "eleven") {
+    if (segBufs[0].length < q.front.length) {
+      setFeedback("⚠️ 先把中間的數字填滿喔！", "no");
+      return;
+    }
+    if (segBufs[0] === q.front) {
+      stage = 2; inputBuf = "";
+      renderSegs();
+      setFeedback(q.carry ? `✨ 中間是 ${q.front}——滿十了！進位後拼出密碼` : "✨ 中間對了！拼出完整密碼", "ok");
+    } else {
+      shakeChest();
+      segBufs[0] = "";
+      setFeedback("❌ 中間不對：🔴頭 ＋ 🔵尾 再算一次", "no");
+      renderSegs();
+    }
     return;
   }
 
@@ -963,38 +1012,40 @@ const ANIM_DATA = {
   },
 
   t3: {
-    title: "秘技三：疊字配五 👯",
-    mantra: "⚡ 口訣：<span class='rd'>頭 × 頭 ＋ 疊字的一半</span> 接 <span class='bl'>尾 × 尾</span>（不滿 10 要補 0）",
+    title: "秘技三：兩位數 × 11 🪄",
+    mantra: "⚡ 口訣：<span class='rd'>兩邊拉開</span>、<span class='bl'>中間相加</span>（滿 10 記得進位）",
+    slotTags: ["兩邊拉開", "中間相加"],
     examples: [
       {
-        digits: ["2", "3", "8", "8"],
-        colors: ["bl", "bl", "rd", "rd"],
+        digits: ["3", "4", "1", "1"],
+        colors: ["rd", "bl", "", ""],
         checks: [
-          "🔴 <span class='rd'>88</span> 是疊字偶數（22、44、66、88）✅",
-          "🔵 <span class='bl'>2</span> ＋ <span class='bl'>3</span> ＝ <span class='bl'>5</span> ✅"
+          "🪄 乘數是 <b>11</b>：任何兩位數都能用這招 ✅",
+          "🔴 頭 3 拉去左邊、🔵 尾 4 留在右邊，中間空出來"
         ],
         steps: [
-          { cls: "rd", val: "20", html: "① 前段：<span class='rd'>頭 × 頭 ＋ 疊字的一半</span> → <span class='rd'>2 × 8 ＋ 4 = 20</span>" },
-          { cls: "bl", val: "24", html: "② 後段：<span class='bl'>尾 × 尾</span> → <span class='bl'>3 × 8 = 24</span>" }
+          { cls: "rd", val: "3 ▢ 4", html: "① <span class='rd'>兩邊拉開</span> → <span class='rd'>3 ▢ 4</span>" },
+          { cls: "bl", val: "7", html: "② <span class='bl'>中間相加</span> → <span class='bl'>3 ＋ 4 ＝ 7</span>" }
         ],
-        combine: "concat",
+        combine: "insert",
         pad: null,
-        answer: "2024"
+        answer: "374"
       },
       {
-        digits: ["4", "1", "6", "6"],
-        colors: ["bl", "bl", "rd", "rd"],
+        digits: ["6", "7", "1", "1"],
+        colors: ["rd", "bl", "", ""],
+        bridge: "🤔 那如果中間相加<b>滿 10</b> 呢？<br>再看一題：<span class='gd'>67 × 11</span>",
         checks: [
-          "🔴 <span class='rd'>66</span> 是疊字偶數 ✅",
-          "🔵 <span class='bl'>4</span> ＋ <span class='bl'>1</span> ＝ <span class='bl'>5</span> ✅"
+          "🪄 乘數是 <b>11</b> ✅",
+          "🔴 頭 6、🔵 尾 7，中間 ＝ 6 ＋ 7"
         ],
         steps: [
-          { cls: "rd", val: "27", html: "① 前段：<span class='rd'>4 × 6 ＋ 3 = 27</span>（66 的一半是 3）" },
-          { cls: "bl", val: "6", html: "② 後段：<span class='bl'>尾 × 尾</span> → <span class='bl'>1 × 6 = 6</span>" }
+          { cls: "rd", val: "6 ▢ 7", html: "① <span class='rd'>兩邊拉開</span> → <span class='rd'>6 ▢ 7</span>" },
+          { cls: "bl", val: "13", html: "② <span class='bl'>中間相加</span> → <span class='bl'>6 ＋ 7 ＝ 13</span>" }
         ],
-        combine: "concat",
-        pad: { val: "06", note: "⚠️ 後段只有 1 位數 → 前面補一個 0 → 06" },
-        answer: "2706"
+        combine: "insert",
+        pad: { val: "13", note: "⚠️ 13 滿 10 → <b>1 進位給左邊的 6</b> → 6＋1＝7" },
+        answer: "737"
       }
     ]
   }
@@ -1106,7 +1157,7 @@ function scheduleExample(ex, base, exLabel) {
 
   // ③ 拼起來 / 相加 → 答案
   animAt(base + tAns, () => {
-    const symbol = ex.combine === "add" ? "＋" : "接";
+    const symbol = ex.combine === "add" ? "＋" : ex.combine === "insert" ? "中間放" : "接";
     $a("animAnswer").innerHTML =
       `<span class="rd">${ex.steps[0].val}</span> <span style="font-size:.6em;color:#9fdcff">${symbol}</span> ` +
       `<span class="bl">${ex.pad ? ex.pad.val : ex.steps[1].val}</span>` +
@@ -1135,6 +1186,9 @@ function playAnim() {
   resetAnimStage();
   lockDoneBtn(data.examples.length > 1 ? "⏳ 播放中…還有範例 ②" : "⏳ 播放中…");
   $a("animTitle").innerHTML = data.title;
+  const tags = data.slotTags || ["前段", "後段"];
+  $a("animTagA").textContent = tags[0];
+  $a("animTagB").textContent = tags[1];
 
   let cursor = 0;
   const total = data.examples.length;
@@ -1145,9 +1199,11 @@ function playAnim() {
     if (i > 0) {
       const bridgeMs = 2000;   // 轉場字卡停留（會再乘上 ANIM_SPEED，約 3 秒）
       animAt(cursor, () => {
-        $a("animBridge").innerHTML = ex.pad
-          ? "🤔 那如果 <span class='bl'>尾 × 尾</span> 不到 10 呢？<br>再看一題：<span class='gd'>" + ex.digits.slice(0,2).join("") + " × " + ex.digits.slice(2).join("") + "</span>"
-          : "👉 再看一題：<span class='gd'>" + ex.digits.slice(0,2).join("") + " × " + ex.digits.slice(2).join("") + "</span>";
+        $a("animBridge").innerHTML = ex.bridge
+          ? ex.bridge
+          : ex.pad
+            ? "🤔 那如果 <span class='bl'>尾 × 尾</span> 不到 10 呢？<br>再看一題：<span class='gd'>" + ex.digits.slice(0,2).join("") + " × " + ex.digits.slice(2).join("") + "</span>"
+            : "👉 再看一題：<span class='gd'>" + ex.digits.slice(0,2).join("") + " × " + ex.digits.slice(2).join("") + "</span>";
         $a("animBridge").classList.add("show");
         lockDoneBtn("⏳ 播放中…範例 ②");
         ding(700, 0.16);

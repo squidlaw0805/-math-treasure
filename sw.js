@@ -1,7 +1,7 @@
 /* 數學速解尋寶記 — 離線快取 Service Worker
    策略：先回快取（現場零網路也能玩），背景同步更新（有網路時自動抓新版）。
    ※ 之後每次更新 App，請把下面的版本字串改掉（如 v3.2），平板連網重整兩次即會換新版。 */
-const CACHE = "math-treasure-v3.1";
+const CACHE = "math-treasure-v3.2";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
