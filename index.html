@@ -230,6 +230,25 @@
   }
   .anim-btn:active { transform: translateY(3px); }
 
+  /* ===== 探究模式：先當偵探，猜對規律才揭曉原理 ===== */
+  .inq { background: rgba(0,180,255,.06); border: 1.5px dashed rgba(0,200,255,.4); border-radius: 14px; padding: 12px 14px; margin: 4px 0 12px; }
+  .inq-ex { font-size: clamp(18px, 4vw, 24px); font-weight: 900; line-height: 1.9; text-align: center; letter-spacing: 1px; color: #e8f4ff; }
+  .inq-q { margin: 10px 0 8px; font-weight: 800; color: #9fdcff; font-size: clamp(15px, 3.4vw, 18px); }
+  .inq-opts { display: flex; flex-direction: column; gap: 8px; }
+  .inq-opt {
+    text-align: left; padding: 10px 14px; border-radius: 12px; cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,.22); background: rgba(255,255,255,.05);
+    color: #e8f4ff; font-size: clamp(15px, 3.4vw, 18px); font-weight: 700; font-family: inherit;
+  }
+  .inq-opt.good { border-color: #24e6a0; background: rgba(36,230,160,.15); }
+  .inq-opt.bad { border-color: #ff6b6b; opacity: .55; }
+  .inq-fb { min-height: 24px; margin-top: 8px; font-weight: 800; font-size: clamp(14px, 3.2vw, 17px); }
+  .inq-fb.ok { color: #24e6a0; } .inq-fb.no { color: #ff9d9d; }
+  .inq-skip { display: none; color: #ffd75e; text-decoration: underline; cursor: pointer; font-weight: 800; margin-left: 8px; }
+  .inq-reveal { display: none; }
+  .inq-reveal.show { display: block; animation: inqFadeUp .5s ease; }
+  @keyframes inqFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
   #animOverlay {
     display: none; position: fixed; inset: 0; z-index: 30;
     background: rgba(3,10,20,.92); backdrop-filter: blur(3px);
@@ -375,7 +394,7 @@
       <button class="btn ghost" onclick="startGame()">⚡ 直接開始挑戰</button>
       <button class="btn ghost" onclick="startGame('kid')">🐣 小尋寶者入門（2 題）</button>
     </div>
-    <div class="ver">v3.3</div>
+    <div class="ver">v3.4</div>
   </section>
 
   <!-- ========== 教學（三張卡片上下直排，往下滑動觀看） ========== -->
@@ -388,6 +407,23 @@
       <h3>秘技一：頭同尾補 🤝</h3>
       <div class="tut-cond">🔴 <span class="rd">十位數相同</span>、🔵 <span class="bl">個位數相加 = 10</span></div>
 
+      <div class="inq">
+        <span class="sec-label">🕵️ 先當偵探</span>
+        <div class="inq-ex">
+          43 × 47 ＝ <span class="rd">20</span><span class="bl">21</span><br>
+          62 × 68 ＝ <span class="rd">42</span><span class="bl">16</span><br>
+          81 × 89 ＝ <span class="rd">72</span><span class="bl">09</span>
+        </div>
+        <div class="inq-q">🔍 答案紅色的前兩位（20、42、72）是怎麼算出來的？</div>
+        <div class="inq-opts">
+          <button class="inq-opt" onclick="inqAnswer(this,false)" data-no="🤔 4×4＝16，可是前段是 20——差了一點點，再看一次！">頭 × 頭：4×4、6×6、8×8</button>
+          <button class="inq-opt" onclick="inqAnswer(this,true)">頭 × (頭＋1)：4×5、6×7、8×9</button>
+          <button class="inq-opt" onclick="inqAnswer(this,false)" data-no="🤔 4＋7＝11，湊不出 20 喔，再觀察一次！">頭 ＋ 尾：4＋7、6＋8、8＋9</button>
+        </div>
+        <div class="inq-fb"></div><span class="inq-skip" onclick="inqReveal(this)">🔓 直接揭曉原理</span>
+      </div>
+
+      <div class="inq-reveal">
       <span class="sec-label">🔍 原理</span>
       <div class="tut-derive">
         <div class="lead"><span class="rd">4</span><span class="bl">3</span> × <span class="rd">4</span><span class="bl">7</span></div>
@@ -407,6 +443,7 @@
       </div>
       <div class="tut-tip">💡 尾×尾不到 10 要補 0：21×29 → 6 和 09 → 609</div>
       <button class="anim-btn" onclick="openAnim('t1')">🎬 點我觀看動畫示範</button>
+      </div>
     </div>
 
     <!-- ===== 秘技二：十幾乘十幾 ===== -->
@@ -414,6 +451,23 @@
       <h3>秘技二：十幾乘十幾 ✌️</h3>
       <div class="tut-cond">🔴 <span class="rd">兩個數都是十幾</span>（11 ~ 19）</div>
 
+      <div class="inq">
+        <span class="sec-label">🕵️ 先當偵探</span>
+        <div class="inq-ex">
+          14 × 15 ＝ <span class="gd">210</span><br>
+          13 × 18 ＝ <span class="gd">234</span><br>
+          17 × 16 ＝ <span class="gd">272</span>
+        </div>
+        <div class="inq-q">🔍 三個答案都符合「某數×10 ＋ 尾×尾」，那個「某數」是？</div>
+        <div class="inq-opts">
+          <button class="inq-opt" onclick="inqAnswer(this,true)">被乘數＋乘數的個位：14＋5＝19、13＋8＝21、17＋6＝23</button>
+          <button class="inq-opt" onclick="inqAnswer(this,false)" data-no="🤔 (14＋15)×10＋4×5＝310，可是答案是 210——多了 100！">兩數直接相加：14＋15＝29</button>
+          <button class="inq-opt" onclick="inqAnswer(this,false)" data-no="🤔 (1＋1)×10＋4×5＝40，離 210 太遠囉！">兩個十位相加：1＋1＝2</button>
+        </div>
+        <div class="inq-fb"></div><span class="inq-skip" onclick="inqReveal(this)">🔓 直接揭曉原理</span>
+      </div>
+
+      <div class="inq-reveal">
       <span class="sec-label">🔍 原理</span>
       <div class="tut-derive">
         <div class="lead"><span class="rd">1</span><span class="bl">4</span> × <span class="rd">1</span><span class="bl">5</span></div>
@@ -432,6 +486,7 @@
         ③ 相加 → 190 + 20 = <span class="gd">210</span>
       </div>
       <button class="anim-btn" onclick="openAnim('t2')">🎬 點我觀看動畫示範</button>
+      </div>
     </div>
 
     <!-- ===== 秘技三：兩位數 × 11 ===== -->
@@ -439,6 +494,23 @@
       <h3>秘技三：兩位數 × 11 🪄</h3>
       <div class="tut-cond">🪄 <span class="rd">任何兩位數</span> × <span class="bl">11</span> 通通適用</div>
 
+      <div class="inq">
+        <span class="sec-label">🕵️ 先當偵探</span>
+        <div class="inq-ex">
+          23 × 11 ＝ <span class="rd">2</span><span class="gd">5</span><span class="bl">3</span><br>
+          34 × 11 ＝ <span class="rd">3</span><span class="gd">7</span><span class="bl">4</span><br>
+          81 × 11 ＝ <span class="rd">8</span><span class="gd">9</span><span class="bl">1</span>
+        </div>
+        <div class="inq-q">🔍 答案中間黃色的數字（5、7、9）是怎麼來的？</div>
+        <div class="inq-opts">
+          <button class="inq-opt" onclick="inqAnswer(this,false)" data-no="🤔 2×3＝6，可是中間是 5 喔，再看一次！">頭 × 尾：2×3、3×4、8×1</button>
+          <button class="inq-opt" onclick="inqAnswer(this,false)" data-no="🤔 8－1＝7，可是 81×11 的中間是 9，再想想！">頭 － 尾：2－3、3－4、8－1</button>
+          <button class="inq-opt" onclick="inqAnswer(this,true)">頭 ＋ 尾：2＋3＝5、3＋4＝7、8＋1＝9</button>
+        </div>
+        <div class="inq-fb"></div><span class="inq-skip" onclick="inqReveal(this)">🔓 直接揭曉原理</span>
+      </div>
+
+      <div class="inq-reveal">
       <span class="sec-label">🔍 原理</span>
       <div class="tut-derive">
         <div class="lead"><span class="rd">3</span><span class="bl">4</span> × 11</div>
@@ -457,6 +529,7 @@
       </div>
       <div class="tut-tip">💡 中間相加滿 10 要進位：67×11 → 6＋7=13 → 1 進給左邊的 6 → 737</div>
       <button class="anim-btn" onclick="openAnim('t3')">🎬 點我觀看動畫示範</button>
+      </div>
     </div>
 
     <button class="btn gold" onclick="startGame()">⏱️ 我學會了，開始尋寶！</button>
@@ -596,6 +669,47 @@ function showScreen(id) {
   const target = document.getElementById(id);
   target.classList.add("active");
   target.scrollTop = 0;   // 教學頁等可捲動畫面每次都從頂端開始
+  if (id === "tutorial") resetInquiry();   // 換下一位玩家時，偵探題恢復未作答
+}
+
+/* ---------- 探究模式：先當偵探，猜對規律才揭曉原理 ---------- */
+function inqAnswer(btn, ok) {
+  const box = btn.closest(".inq");
+  const fb = box.querySelector(".inq-fb");
+  if (ok) {
+    box.querySelectorAll(".inq-opt").forEach(b => b.disabled = true);
+    btn.classList.add("good");
+    fb.innerHTML = "🎉 答對了！你自己發現了口訣的核心——往下看原理怎麼證明它";
+    fb.className = "inq-fb ok";
+    box.nextElementSibling.classList.add("show");
+    try { ding(880, 0.15); } catch (e) {}
+  } else {
+    btn.classList.add("bad");
+    btn.disabled = true;
+    fb.textContent = btn.dataset.no || "🤔 再對照一次上面的例子！";
+    fb.className = "inq-fb no";
+    box.querySelector(".inq-skip").style.display = "inline";   // 猜錯過一次後提供逃生口
+  }
+}
+
+function inqReveal(el) {
+  const box = el.closest(".inq");
+  box.querySelectorAll(".inq-opt").forEach(b => b.disabled = true);
+  const fb = box.querySelector(".inq-fb");
+  fb.textContent = "沒關係！看完原理之後，回頭再驗證一次上面的例子 💪";
+  fb.className = "inq-fb ok";
+  el.style.display = "none";
+  box.nextElementSibling.classList.add("show");
+}
+
+function resetInquiry() {
+  document.querySelectorAll(".inq").forEach(box => {
+    box.querySelectorAll(".inq-opt").forEach(b => { b.disabled = false; b.classList.remove("good", "bad"); });
+    const fb = box.querySelector(".inq-fb");
+    fb.textContent = ""; fb.className = "inq-fb";
+    box.querySelector(".inq-skip").style.display = "none";
+    box.nextElementSibling.classList.remove("show");
+  });
 }
 
 /* ---------- 螢幕常亮（支援的瀏覽器才生效，失敗就靜默略過） ---------- */
